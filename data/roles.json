@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "superadmin",
+    "descripcion": "Acceso total",
+    "permisos": "[\"all\"]"
+  },
+  {
+    "id": 2,
+    "nombre": "admin",
+    "descripcion": "Administrador de nómina",
+    "permisos": "[\"nomina\",\"empleados\",\"reportes\",\"usuarios\"]"
+  },
+  {
+    "id": 3,
+    "nombre": "contador",
+    "descripcion": "Acceso contable",
+    "permisos": "[\"nomina\",\"reportes\",\"libros\"]"
+  },
+  {
+    "id": 4,
+    "nombre": "empleado",
+    "descripcion": "Solo sus recibos",
+    "permisos": "[\"recibos\"]"
+  }
+]

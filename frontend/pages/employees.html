@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empleados — PaySchool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="dashboard.html" class="logo-mark"><div class="logo-icon">🎓</div><div class="logo-text"><span class="logo-pay">Pay</span><span class="logo-school">School</span></div></a>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">SA</div>
+      <div class="user-info"><div class="user-name" id="user-name">Cargando...</div><div class="user-role" id="user-role">—</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="employees.html" class="nav-item active"><span class="nav-icon">👥</span>Empleados</a>
+      <a href="payroll.html" class="nav-item"><span class="nav-icon">💰</span>Nómina</a>
+      <a href="accounting.html" class="nav-item"><span class="nav-icon">📒</span>Libros Contables</a>
+      <a href="users.html" class="nav-item"><span class="nav-icon">🔑</span>Usuarios</a>
+      <div class="nav-section-label" style="margin-top:12px">Sistema</div>
+      <a href="logs.html" class="nav-item"><span class="nav-icon">📋</span>Bitácora</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" id="logout-btn" style="width:100%"><span class="nav-icon">🚪</span>Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h1 class="topbar-title">Gestión de Empleados</h1>
+      <div class="topbar-actions">
+        <button class="topbar-btn" id="notif-btn">🔔<span class="notif-dot" id="notif-dot" style="display:none"></span></button>
+      </div>
+    </header>
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-header"><span class="notif-title">Notificaciones</span></div>
+      <div id="notif-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Empleados</h1>
+          <p>Administra el personal de la institución</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">+ Nuevo Empleado</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:20px;padding:16px 24px">
+        <div class="flex gap-3 items-center" style="flex-wrap:wrap">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Buscar empleado..." id="search-input" oninput="filterEmployees()">
+          </div>
+          <select class="form-control" id="dept-filter" style="max-width:200px" onchange="loadEmployees()">
+            <option value="">Todos los departamentos</option>
+          </select>
+          <select class="form-control" id="status-filter" style="max-width:160px" onchange="loadEmployees()">
+            <option value="">Todos</option>
+            <option value="true">Activos</option>
+            <option value="false">Inactivos</option>
+          </select>
+          <span id="emp-count" class="text-muted text-sm"></span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0">
+        <div id="loading-emp" class="loading"><div class="spinner"></div><p>Cargando empleados...</p></div>
+        <div class="table-container" id="emp-table-wrap" style="display:none">
+          <table>
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Código</th>
+                <th>Departamento</th>
+                <th>Cargo</th>
+                <th>Contrato</th>
+                <th>Salario Base</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="emp-tbody"></tbody>
+          </table>
+        </div>
+        <div id="emp-empty" class="empty-state hidden">
+          <div class="empty-icon">👥</div>
+          <h3>Sin empleados</h3>
+          <p>Agrega el primer empleado para comenzar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Crear/Editar Empleado -->
+<div class="modal-overlay" id="emp-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Nuevo Empleado</h2>
+      <button class="modal-close" onclick="modal.close('emp-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="emp-form">
+        <input type="hidden" id="emp-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Código *</label>
+            <input class="form-control" id="f-codigo" placeholder="EMP001" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de Ingreso *</label>
+            <input type="date" class="form-control" id="f-fecha_ingreso" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input class="form-control" id="f-nombre" placeholder="Juan" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido *</label>
+            <input class="form-control" id="f-apellido" placeholder="Pérez" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-control" id="f-email" placeholder="juan@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" id="f-telefono" placeholder="555-0100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departamento</label>
+            <select class="form-control" id="f-departamento_id">
+              <option value="">— Seleccionar —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cargo</label>
+            <input class="form-control" id="f-cargo" placeholder="Docente de Matemáticas">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Contrato</label>
+            <select class="form-control" id="f-tipo_contrato">
+              <option value="tiempo_completo">Tiempo Completo</option>
+              <option value="medio_tiempo">Medio Tiempo</option>
+              <option value="temporal">Temporal</option>
+              <option value="honorarios">Honorarios</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Salario Base *</label>
+            <input type="number" class="form-control" id="f-salario_base" placeholder="2500.00" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Banco</label>
+            <input class="form-control" id="f-banco" placeholder="Banco Nacional">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cuenta Bancaria</label>
+            <input class="form-control" id="f-cuenta_bancaria" placeholder="1234567890">
+          </div>
+          <div class="form-group">
+            <label class="form-label">N° Identificación</label>
+            <input class="form-control" id="f-numero_identificacion" placeholder="Cédula / DUI / CC">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Género</label>
+            <select class="form-control" id="f-genero">
+              <option value="">— Seleccionar —</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección</label>
+          <input class="form-control" id="f-direccion" placeholder="Dirección completa">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="modal.close('emp-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEmployee()" id="save-btn">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  if (!api.requireAuth()) throw '';
+
+  let employees = [];
+  let departments = [];
+
+  async function loadDepts() {
+    const data = await api.get('/empleados/departamentos/list');
+    departments = data?.data || [];
+    const deptFilter = document.getElementById('dept-filter');
+    const fDept = document.getElementById('f-departamento_id');
+    departments.forEach(d => {
+      deptFilter.innerHTML += `<option value="${d.id}">${d.nombre}</option>`;
+      fDept.innerHTML += `<option value="${d.id}">${d.nombre}</option>`;
+    });
+  }
+
+  async function loadEmployees() {
+    document.getElementById('loading-emp').style.display = 'flex';
+    document.getElementById('emp-table-wrap').style.display = 'none';
+    document.getElementById('emp-empty').classList.add('hidden');
+
+    const dept = document.getElementById('dept-filter').value;
+    const status = document.getElementById('status-filter').value;
+    const search = document.getElementById('search-input').value;
+
+    let url = '/empleados?';
+    if (dept) url += `departamento_id=${dept}&`;
+    if (status !== '') url += `activo=${status}&`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+
+    const data = await api.get(url);
+    employees = data?.data || [];
+
+    document.getElementById('loading-emp').style.display = 'none';
+    document.getElementById('emp-count').textContent = `${employees.length} empleados`;
+
+    if (!employees.length) {
+      document.getElementById('emp-empty').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('emp-tbody').innerHTML = employees.map(e => `
+      <tr>
+        <td>
+          <div class="flex items-center gap-3">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">
+              ${e.nombre.charAt(0)}${e.apellido.charAt(0)}
+            </div>
+            <div>
+              <div style="font-weight:600">${e.nombre} ${e.apellido}</div>
+              <div style="font-size:12px;color:var(--text-secondary)">${e.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><code style="background:rgba(99,179,237,0.1);padding:3px 8px;border-radius:6px;font-size:12px;color:var(--accent-blue)">${e.codigo}</code></td>
+        <td>${e.departamento_nombre || '—'}</td>
+        <td>${e.cargo || '—'}</td>
+        <td><span class="badge badge-info">${contratoLabel(e.tipo_contrato)}</span></td>
+        <td><strong>${fmt.currency(e.salario_base)}</strong></td>
+        <td>${statusBadge(e.activo ? 'activo' : 'inactivo')}</td>
+        <td>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" onclick="editEmployee(${e.id})" title="Editar">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="toggleEmployee(${e.id}, ${e.activo})" title="${e.activo ? 'Desactivar' : 'Activar'}">
+              ${e.activo ? '🚫' : '✅'}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('emp-table-wrap').style.display = 'block';
+  }
+
+  function filterEmployees() {
+    clearTimeout(window._searchTimer);
+    window._searchTimer = setTimeout(loadEmployees, 300);
+  }
+
+  function openCreateModal() {
+    document.getElementById('emp-form').reset();
+    document.getElementById('emp-id').value = '';
+    document.getElementById('modal-title').textContent = 'Nuevo Empleado';
+    // Reset dept select to first option
+    document.getElementById('f-departamento_id').value = '';
+    modal.open('emp-modal');
+  }
+
+  async function editEmployee(id) {
+    const data = await api.get(`/empleados/${id}`);
+    if (!data?.success) return toast.error('Error cargando empleado');
+    const e = data.data;
+    document.getElementById('emp-id').value = e.id;
+    document.getElementById('modal-title').textContent = 'Editar Empleado';
+    ['codigo','nombre','apellido','email','telefono','departamento_id','cargo',
+     'tipo_contrato','salario_base','banco','cuenta_bancaria','numero_identificacion','genero','direccion'].forEach(f => {
+      const el = document.getElementById(`f-${f}`);
+      if (el) el.value = e[f] || '';
+    });
+    if (e.fecha_ingreso) document.getElementById('f-fecha_ingreso').value = fmt.dateInput(e.fecha_ingreso);
+    modal.open('emp-modal');
+  }
+
+  async function saveEmployee() {
+    const id = document.getElementById('emp-id').value;
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    const payload = {};
+    ['codigo','nombre','apellido','email','telefono','departamento_id','cargo',
+     'tipo_contrato','salario_base','banco','cuenta_bancaria','numero_identificacion',
+     'genero','direccion','fecha_ingreso'].forEach(f => {
+      payload[f] = document.getElementById(`f-${f}`)?.value || '';
+    });
+
+    const data = id
+      ? await api.put(`/empleados/${id}`, { ...payload, activo: true })
+      : await api.post('/empleados', payload);
+
+    btn.disabled = false; btn.textContent = '💾 Guardar';
+
+    if (data?.success) {
+      toast.success(id ? 'Empleado actualizado' : 'Empleado creado exitosamente');
+      modal.close('emp-modal');
+      loadEmployees();
+    } else {
+      toast.error(data?.message || 'Error al guardar');
+    }
+  }
+
+  async function toggleEmployee(id, activo) {
+    const msg = activo ? '¿Desactivar este empleado?' : '¿Reactivar este empleado?';
+    if (!confirm(msg)) return;
+    const data = activo
+      ? await api.delete(`/empleados/${id}`)
+      : await api.put(`/empleados/${id}`, { activo: true });
+    if (data?.success) {
+      toast.success(activo ? 'Empleado desactivado' : 'Empleado reactivado');
+      loadEmployees();
+    } else {
+      toast.error('Error al actualizar estado');
+    }
+  }
+
+  loadDepts().then(loadEmployees);
+  loadNotifications();
+</script>
+</body>
+</html>

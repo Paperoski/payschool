@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "libro_id": 1,
+    "cuenta_codigo": "123",
+    "cuenta_nombre": "asdad",
+    "debe": 1222,
+    "haber": 1222,
+    "created_at": "2026-02-27T13:54:21.013Z"
+  }
+]

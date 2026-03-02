@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libros Contables — PaySchool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><a href="dashboard.html" class="logo-mark"><div class="logo-icon">🎓</div><div class="logo-text"><span class="logo-pay">Pay</span><span class="logo-school">School</span></div></a></div>
+    <div class="sidebar-user"><div class="user-avatar" id="user-avatar">SA</div><div class="user-info"><div class="user-name" id="user-name">Cargando...</div><div class="user-role" id="user-role">—</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="employees.html" class="nav-item"><span class="nav-icon">👥</span>Empleados</a>
+      <a href="payroll.html" class="nav-item"><span class="nav-icon">💰</span>Nómina</a>
+      <a href="accounting.html" class="nav-item active"><span class="nav-icon">📒</span>Libros Contables</a>
+      <a href="users.html" class="nav-item"><span class="nav-icon">🔑</span>Usuarios</a>
+      <div class="nav-section-label" style="margin-top:12px">Sistema</div>
+      <a href="logs.html" class="nav-item"><span class="nav-icon">📋</span>Bitácora</a>
+    </nav>
+    <div class="sidebar-footer"><button class="nav-item" id="logout-btn" style="width:100%"><span class="nav-icon">🚪</span>Cerrar Sesión</button></div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h1 class="topbar-title">Libros Contables</h1>
+      <div class="topbar-actions">
+        <button class="topbar-btn" id="notif-btn">🔔<span class="notif-dot" id="notif-dot" style="display:none"></span></button>
+      </div>
+    </header>
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-header"><span class="notif-title">Notificaciones</span></div>
+      <div id="notif-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Libros Contables</h1>
+          <p>Libro diario, mayor y balance general</p>
+        </div>
+        <button class="btn btn-primary" onclick="modal.open('asiento-modal')">+ Nuevo Asiento</button>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:4px">
+        <button class="btn btn-primary btn-sm tab-btn" onclick="switchTab('diario')" id="tab-diario">📒 Libro Diario</button>
+        <button class="btn btn-secondary btn-sm tab-btn" onclick="switchTab('balance')" id="tab-balance">⚖️ Balance General</button>
+      </div>
+
+      <!-- Libro Diario -->
+      <div id="panel-diario">
+        <div class="card" style="padding:0">
+          <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <select class="form-control" id="tipo-filter" style="max-width:160px" onchange="loadLibro()">
+              <option value="">Todos</option>
+              <option value="diario">Diario</option>
+              <option value="mayor">Mayor</option>
+              <option value="auxiliar">Auxiliar</option>
+            </select>
+            <input type="date" class="form-control" id="fecha-inicio" style="max-width:160px" onchange="loadLibro()">
+            <input type="date" class="form-control" id="fecha-fin" style="max-width:160px" onchange="loadLibro()">
+            <button class="btn btn-secondary btn-sm" onclick="loadLibro()">🔄 Filtrar</button>
+          </div>
+          <div id="loading-libro" class="loading"><div class="spinner"></div></div>
+          <div class="table-container" id="libro-table" style="display:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>N° Asiento</th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Referencia</th>
+                  <th>Creado Por</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="libro-tbody"></tbody>
+            </table>
+          </div>
+          <div id="libro-empty" class="empty-state hidden">
+            <div class="empty-icon">📒</div>
+            <h3>Sin asientos</h3>
+            <p>Crea el primer asiento contable</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Balance General -->
+      <div id="panel-balance" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">⚖️ Balance de Comprobación</h3>
+            <button class="btn btn-secondary btn-sm" onclick="loadBalance()">🔄 Actualizar</button>
+          </div>
+          <div id="loading-balance" class="loading"><div class="spinner"></div></div>
+          <div class="table-container" id="balance-table" style="display:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Cuenta</th>
+                  <th>Total Debe</th>
+                  <th>Total Haber</th>
+                  <th>Saldo</th>
+                </tr>
+              </thead>
+              <tbody id="balance-tbody"></tbody>
+            </table>
+          </div>
+          <div id="balance-empty" class="empty-state hidden">
+            <div class="empty-icon">⚖️</div>
+            <h3>Sin movimientos</h3>
+            <p>No hay asientos contables registrados</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Asiento -->
+<div class="modal-overlay" id="asiento-modal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <h2 class="modal-title">Nuevo Asiento Contable</h2>
+      <button class="modal-close" onclick="modal.close('asiento-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Tipo *</label>
+          <select class="form-control" id="a-tipo">
+            <option value="diario">Libro Diario</option>
+            <option value="mayor">Libro Mayor</option>
+            <option value="auxiliar">Auxiliar</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">N° Asiento *</label>
+          <input class="form-control" id="a-numero" placeholder="ASI-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha *</label>
+          <input type="date" class="form-control" id="a-fecha">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Referencia</label>
+          <input class="form-control" id="a-referencia" placeholder="REF-001">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción *</label>
+        <input class="form-control" id="a-descripcion" placeholder="Descripción del asiento contable">
+      </div>
+
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h4 style="font-family:var(--font-display);font-size:14px">Detalle de Cuentas</h4>
+        <button class="btn btn-secondary btn-sm" onclick="addRow()">+ Agregar fila</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Código Cuenta</th>
+              <th>Nombre Cuenta</th>
+              <th>Debe</th>
+              <th>Haber</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="asiento-rows">
+            <tr>
+              <td><input class="form-control" placeholder="5101" style="min-width:100px"></td>
+              <td><input class="form-control" placeholder="Gastos de Personal" style="min-width:200px"></td>
+              <td><input type="number" class="form-control debe" placeholder="0.00" style="min-width:110px" oninput="updateTotals()"></td>
+              <td><input type="number" class="form-control haber" placeholder="0.00" style="min-width:110px" oninput="updateTotals()"></td>
+              <td><button onclick="removeRow(this)" class="btn btn-danger btn-sm btn-icon">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:24px;margin-top:12px;padding:12px 0;border-top:1px solid var(--border)">
+        <span style="font-size:14px">Total Debe: <strong id="total-debe" style="color:var(--accent-green)">$0.00</strong></span>
+        <span style="font-size:14px">Total Haber: <strong id="total-haber" style="color:var(--accent-red)">$0.00</strong></span>
+        <span style="font-size:14px" id="balance-check">⚖️ Balanceado</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="modal.close('asiento-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAsiento()" id="save-asiento-btn">💾 Guardar Asiento</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  if (!api.requireAuth()) throw '';
+
+  // Set today as default date
+  document.getElementById('a-fecha').value = new Date().toISOString().split('T')[0];
+
+  function switchTab(tab) {
+    document.getElementById('panel-diario').classList.toggle('hidden', tab !== 'diario');
+    document.getElementById('panel-balance').classList.toggle('hidden', tab !== 'balance');
+    document.getElementById('tab-diario').className = tab === 'diario' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+    document.getElementById('tab-balance').className = tab === 'balance' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+    if (tab === 'balance') loadBalance();
+  }
+
+  async function loadLibro() {
+    document.getElementById('loading-libro').style.display = 'flex';
+    document.getElementById('libro-table').style.display = 'none';
+    document.getElementById('libro-empty').classList.add('hidden');
+
+    let url = '/contabilidad/libros?';
+    const tipo = document.getElementById('tipo-filter').value;
+    const fi = document.getElementById('fecha-inicio').value;
+    const ff = document.getElementById('fecha-fin').value;
+    if (tipo) url += `tipo=${tipo}&`;
+    if (fi) url += `fecha_inicio=${fi}&`;
+    if (ff) url += `fecha_fin=${ff}&`;
+
+    const data = await api.get(url);
+    const rows = data?.data || [];
+    document.getElementById('loading-libro').style.display = 'none';
+
+    if (!rows.length) { document.getElementById('libro-empty').classList.remove('hidden'); return; }
+
+    document.getElementById('libro-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><code style="background:rgba(99,179,237,0.1);padding:3px 8px;border-radius:6px;font-size:12px;color:var(--accent-blue)">${r.numero_asiento}</code></td>
+        <td><span class="badge badge-info">${r.tipo}</span></td>
+        <td>${fmt.date(r.fecha)}</td>
+        <td style="max-width:250px">${r.descripcion}</td>
+        <td>${r.referencia || '—'}</td>
+        <td>${r.creado_por || '—'}</td>
+        <td><button class="btn btn-sm btn-secondary" onclick="viewAsiento(${r.id})">👁 Ver</button></td>
+      </tr>
+    `).join('');
+    document.getElementById('libro-table').style.display = 'block';
+  }
+
+  async function loadBalance() {
+    document.getElementById('loading-balance').style.display = 'flex';
+    document.getElementById('balance-table').style.display = 'none';
+
+    const data = await api.get('/contabilidad/balance');
+    const rows = data?.data || [];
+    document.getElementById('loading-balance').style.display = 'none';
+
+    if (!rows.length) { document.getElementById('balance-empty').classList.remove('hidden'); return; }
+
+    let totalDebe = 0, totalHaber = 0;
+    document.getElementById('balance-tbody').innerHTML = rows.map(r => {
+      totalDebe += parseFloat(r.total_debe || 0);
+      totalHaber += parseFloat(r.total_haber || 0);
+      const saldo = parseFloat(r.saldo || 0);
+      return `
+        <tr>
+          <td><code style="background:rgba(99,179,237,0.1);padding:3px 8px;border-radius:6px;font-size:12px">${r.cuenta_codigo}</code></td>
+          <td>${r.cuenta_nombre}</td>
+          <td style="color:var(--accent-green)">${fmt.currency(r.total_debe)}</td>
+          <td style="color:var(--accent-red)">${fmt.currency(r.total_haber)}</td>
+          <td><strong style="color:${saldo >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">${fmt.currency(Math.abs(saldo))} ${saldo >= 0 ? 'D' : 'H'}</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    document.getElementById('balance-tbody').innerHTML += `
+      <tr style="background:rgba(99,179,237,0.06);border-top:2px solid rgba(99,179,237,0.2)">
+        <td colspan="2"><strong>TOTALES</strong></td>
+        <td><strong style="color:var(--accent-green)">${fmt.currency(totalDebe)}</strong></td>
+        <td><strong style="color:var(--accent-red)">${fmt.currency(totalHaber)}</strong></td>
+        <td><span class="${Math.abs(totalDebe - totalHaber) < 0.01 ? 'badge badge-success' : 'badge badge-error'}">${Math.abs(totalDebe - totalHaber) < 0.01 ? '✅ Balanceado' : '⚠️ Desbalanceado'}</span></td>
+      </tr>
+    `;
+    document.getElementById('balance-table').style.display = 'block';
+  }
+
+  async function viewAsiento(id) {
+    const data = await api.get(`/contabilidad/libros/${id}`);
+    if (!data?.success) return toast.error('Error cargando asiento');
+    const a = data.data;
+    alert(`Asiento ${a.numero_asiento}\n${a.descripcion}\n\nCuentas:\n${a.asientos?.map(x => `  ${x.cuenta_codigo} - ${x.cuenta_nombre}: D:${x.debe} H:${x.haber}`).join('\n')}`);
+  }
+
+  function addRow() {
+    const tbody = document.getElementById('asiento-rows');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="form-control" placeholder="Código" style="min-width:100px"></td>
+      <td><input class="form-control" placeholder="Nombre de cuenta" style="min-width:200px"></td>
+      <td><input type="number" class="form-control debe" placeholder="0.00" style="min-width:110px" oninput="updateTotals()"></td>
+      <td><input type="number" class="form-control haber" placeholder="0.00" style="min-width:110px" oninput="updateTotals()"></td>
+      <td><button onclick="removeRow(this)" class="btn btn-danger btn-sm btn-icon">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  function removeRow(btn) {
+    const rows = document.querySelectorAll('#asiento-rows tr');
+    if (rows.length > 1) { btn.closest('tr').remove(); updateTotals(); }
+  }
+
+  function updateTotals() {
+    let debe = 0, haber = 0;
+    document.querySelectorAll('.debe').forEach(i => debe += parseFloat(i.value) || 0);
+    document.querySelectorAll('.haber').forEach(i => haber += parseFloat(i.value) || 0);
+    document.getElementById('total-debe').textContent = fmt.currency(debe);
+    document.getElementById('total-haber').textContent = fmt.currency(haber);
+    const balanced = Math.abs(debe - haber) < 0.01;
+    document.getElementById('balance-check').innerHTML = balanced
+      ? '<span class="badge badge-success">✅ Balanceado</span>'
+      : `<span class="badge badge-error">⚠️ Diferencia: ${fmt.currency(Math.abs(debe - haber))}</span>`;
+  }
+
+  async function saveAsiento() {
+    const btn = document.getElementById('save-asiento-btn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    const rows = document.querySelectorAll('#asiento-rows tr');
+    const asientos = [];
+    rows.forEach(tr => {
+      const inputs = tr.querySelectorAll('input');
+      if (inputs[0]?.value && inputs[1]?.value) {
+        asientos.push({
+          cuenta_codigo: inputs[0].value,
+          cuenta_nombre: inputs[1].value,
+          debe: parseFloat(inputs[2]?.value) || 0,
+          haber: parseFloat(inputs[3]?.value) || 0
+        });
+      }
+    });
+
+    const payload = {
+      tipo: document.getElementById('a-tipo').value,
+      numero_asiento: document.getElementById('a-numero').value,
+      fecha: document.getElementById('a-fecha').value,
+      descripcion: document.getElementById('a-descripcion').value,
+      referencia: document.getElementById('a-referencia').value,
+      asientos
+    };
+
+    const data = await api.post('/contabilidad/libros', payload);
+    btn.disabled = false; btn.textContent = '💾 Guardar Asiento';
+
+    if (data?.success) {
+      toast.success('Asiento contable creado');
+      modal.close('asiento-modal');
+      loadLibro();
+    } else {
+      toast.error(data?.message || 'Error al guardar');
+    }
+  }
+
+  loadLibro();
+  loadNotifications();
+</script>
+</body>
+</html>

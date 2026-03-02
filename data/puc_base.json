@@ -1,0 +1,17 @@
+[
+  { "codigo": "1105", "nombre": "Caja General", "naturaleza": "DEBITO", "tipo": "ACTIVO" },
+  { "codigo": "1110", "nombre": "Bancos", "naturaleza": "DEBITO", "tipo": "ACTIVO" },
+  { "codigo": "1305", "nombre": "Cuentas por cobrar estudiantes", "naturaleza": "DEBITO", "tipo": "ACTIVO" },
+
+  { "codigo": "2105", "nombre": "Proveedores", "naturaleza": "CREDITO", "tipo": "PASIVO" },
+  { "codigo": "2205", "nombre": "Salarios por pagar", "naturaleza": "CREDITO", "tipo": "PASIVO" },
+
+  { "codigo": "3105", "nombre": "Capital social", "naturaleza": "CREDITO", "tipo": "PATRIMONIO" },
+  { "codigo": "3605", "nombre": "Utilidad del ejercicio", "naturaleza": "CREDITO", "tipo": "PATRIMONIO" },
+
+  { "codigo": "4135", "nombre": "Ingresos por matrículas", "naturaleza": "CREDITO", "tipo": "INGRESO" },
+  { "codigo": "4145", "nombre": "Ingresos por pensiones", "naturaleza": "CREDITO", "tipo": "INGRESO" },
+
+  { "codigo": "5105", "nombre": "Gastos de nómina", "naturaleza": "DEBITO", "tipo": "GASTO" },
+  { "codigo": "5135", "nombre": "Servicios públicos", "naturaleza": "DEBITO", "tipo": "GASTO" }
+]

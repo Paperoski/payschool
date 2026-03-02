@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "nombre": "a",
+    "tipo": "quincenal",
+    "fecha_inicio": "2026-02-04",
+    "fecha_fin": "2026-10-07",
+    "fecha_pago": "2026-02-05",
+    "observaciones": null,
+    "created_by": 1,
+    "estado": "borrador",
+    "total_ingresos": 0,
+    "total_deducciones": 0,
+    "total_neto": 0,
+    "created_at": "2026-02-27T13:53:48.107Z",
+    "updated_at": "2026-02-27T13:53:48.107Z"
+  }
+]

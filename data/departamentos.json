@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "nombre": "Dirección",
+    "descripcion": "Dirección general",
+    "activo": true
+  },
+  {
+    "id": 2,
+    "nombre": "Docentes",
+    "descripcion": "Personal académico",
+    "activo": true
+  },
+  {
+    "id": 3,
+    "nombre": "Administrativo",
+    "descripcion": "Personal admin",
+    "activo": true
+  },
+  {
+    "id": 4,
+    "nombre": "Finanzas",
+    "descripcion": "Finanzas y contabilidad",
+    "activo": true
+  },
+  {
+    "id": 5,
+    "nombre": "Sistemas",
+    "descripcion": "Tecnología",
+    "activo": true
+  },
+  {
+    "id": 6,
+    "nombre": "Servicios Generales",
+    "descripcion": "Mantenimiento",
+    "activo": true
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "nombre": "Super",
+    "apellido": "Admin",
+    "email": "admin@payschool.com",
+    "password": "$2b$10$6YvTNu6Vt81rHFqWickjLeveDrYspSXk8lPiQ4F1od..j3vHeGLQm",
+    "rol_id": 1,
+    "activo": true,
+    "ultimo_login": "2026-02-27T13:46:16.015Z",
+    "created_at": "2026-02-27T13:38:00.072Z",
+    "updated_at": "2026-02-27T13:38:00.073Z"
+  }
+]

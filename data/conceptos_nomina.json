@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "codigo": "SAL001",
+    "nombre": "Salario Base",
+    "tipo": "ingreso",
+    "calculo": "fijo",
+    "valor": 0,
+    "aplica_todos": true,
+    "activo": true
+  },
+  {
+    "id": 2,
+    "codigo": "BON001",
+    "nombre": "Bono de Transporte",
+    "tipo": "ingreso",
+    "calculo": "fijo",
+    "valor": 150,
+    "aplica_todos": true,
+    "activo": true
+  },
+  {
+    "id": 3,
+    "codigo": "DED001",
+    "nombre": "Seguro Social",
+    "tipo": "deduccion",
+    "calculo": "porcentaje",
+    "valor": 4,
+    "aplica_todos": true,
+    "activo": true
+  },
+  {
+    "id": 4,
+    "codigo": "DED002",
+    "nombre": "Impuesto sobre la Renta",
+    "tipo": "deduccion",
+    "calculo": "porcentaje",
+    "valor": 5,
+    "aplica_todos": true,
+    "activo": true
+  },
+  {
+    "id": 5,
+    "codigo": "PAT001",
+    "nombre": "Aporte Patronal Seguro",
+    "tipo": "aporte_patronal",
+    "calculo": "porcentaje",
+    "valor": 8,
+    "aplica_todos": true,
+    "activo": true
+  }
+]

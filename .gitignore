@@ -1,0 +1,23 @@
+# ==============================================================
+# PAYSCHOOL - .gitignore
+# Archivos que NO deben subirse a GitHub
+# ==============================================================
+
+# Variables de entorno con contraseñas y claves secretas
+# NUNCA subas este archivo - contiene tus credenciales
+.env
+
+# Dependencias de Node (se instalan con npm install)
+node_modules/
+
+# Logs del sistema
+*.log
+npm-debug.log*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Cache de editores
+.vscode/settings.json
+*.swp

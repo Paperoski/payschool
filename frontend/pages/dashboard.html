@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — PaySchool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <!-- SIDEBAR: Navegación principal del sistema -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="dashboard.html" class="logo-mark">
+        <div class="logo-icon">🎓</div>
+        <div class="logo-text">
+          <span class="logo-pay">Pay</span><span class="logo-school">School</span>
+        </div>
+      </a>
+    </div>
+    <!-- Datos del usuario logueado (se llenan con JS) -->
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">SA</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Cargando...</div>
+        <div class="user-role" id="user-role">—</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="dashboard.html"  class="nav-item active"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="employees.html"  class="nav-item"><span class="nav-icon">👥</span>Empleados</a>
+      <a href="payroll.html"    class="nav-item"><span class="nav-icon">💰</span>Nómina</a>
+      <a href="accounting.html" class="nav-item"><span class="nav-icon">📒</span>Libros Contables</a>
+      <a href="users.html"      class="nav-item"><span class="nav-icon">🔑</span>Usuarios</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" id="logout-btn" style="width:100%">
+        <span class="nav-icon">🚪</span>Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h1 class="topbar-title">Dashboard</h1>
+      <div class="topbar-actions">
+        <button class="topbar-btn" id="notif-btn" title="Notificaciones">
+          🔔
+          <span class="notif-dot" id="notif-dot" style="display:none"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Panel desplegable de notificaciones -->
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-header">
+        <span class="notif-title">Notificaciones</span>
+        <button class="btn btn-sm btn-secondary" onclick="markAllRead()">Leer todas</button>
+      </div>
+      <div id="notif-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Panel Principal</h1>
+          <p id="welcome-msg">Bienvenido a PaySchool</p>
+        </div>
+        <div class="flex gap-3">
+          <button class="btn btn-secondary" onclick="loadDashboard()">🔄 Actualizar</button>
+          <a href="payroll.html" class="btn btn-primary">+ Nueva Nómina</a>
+        </div>
+      </div>
+
+      <!-- Loading mientras llegan los datos -->
+      <div id="loading-state" class="loading">
+        <div class="spinner"></div>
+        <p>Cargando información...</p>
+      </div>
+
+      <!-- Contenido principal (oculto hasta que carguen los datos) -->
+      <div id="dashboard-content" class="hidden">
+
+        <!-- Tarjetas de KPIs -->
+        <div class="stats-grid" id="stats-grid"></div>
+
+        <div class="grid-2" style="margin-bottom:24px">
+          <!-- Últimas nóminas -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">📋 Últimos Períodos</h3>
+              <a href="payroll.html" class="btn btn-sm btn-secondary">Ver todos</a>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Período</th><th>Estado</th><th>Total Neto</th></tr>
+                </thead>
+                <tbody id="recent-payrolls"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Masa salarial por departamento con barras -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">🏢 Masa Salarial por Área</h3>
+            </div>
+            <div id="dept-list" style="display:flex;flex-direction:column;gap:14px"></div>
+          </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">⚡ Acciones Rápidas</h3>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <a href="employees.html"  class="btn btn-secondary">👥 Nuevo Empleado</a>
+            <a href="payroll.html"    class="btn btn-secondary">💰 Procesar Nómina</a>
+            <a href="accounting.html" class="btn btn-secondary">📒 Ver Libros</a>
+            <a href="users.html"      class="btn btn-secondary">🔑 Gestionar Usuarios</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  // Proteger la página: si no hay sesión, ir al login
+  if (!api.requireAuth()) throw new Error('Sin autenticación');
+
+  async function loadDashboard() {
+    document.getElementById('loading-state').classList.remove('hidden');
+    document.getElementById('dashboard-content').classList.add('hidden');
+
+    try {
+      const data = await api.get('/nomina/dashboard');
+      if (!data?.success) throw new Error();
+
+      const { stats, ultimosPeriodos, porDepartamento } = data.data;
+      const user = api.getUser();
+
+      // Saludo personalizado con fecha
+      document.getElementById('welcome-msg').textContent =
+        `Bienvenido, ${user.nombre}. ${new Date().toLocaleDateString('es',{
+          weekday:'long', year:'numeric', month:'long', day:'numeric'
+        })}`;
+
+      // KPIs
+      document.getElementById('stats-grid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info">
+            <div class="stat-label">Empleados Activos</div>
+            <div class="stat-value">${fmt.number(stats.total_empleados)}</div>
+            <div class="stat-sub">Personal registrado</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="stat-info">
+            <div class="stat-label">Nómina Este Mes</div>
+            <div class="stat-value" style="font-size:22px">${fmt.currency(stats.nomina_mes)}</div>
+            <div class="stat-sub">Total neto pagado</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">✅</div>
+          <div class="stat-info">
+            <div class="stat-label">Períodos Pagados</div>
+            <div class="stat-value">${fmt.number(stats.periodos_pagados)}</div>
+            <div class="stat-sub">Histórico total</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">⏳</div>
+          <div class="stat-info">
+            <div class="stat-label">Pendientes</div>
+            <div class="stat-value">${fmt.number(stats.periodos_pendientes)}</div>
+            <div class="stat-sub">Por procesar</div>
+          </div>
+        </div>
+      `;
+
+      // Tabla de últimos períodos
+      document.getElementById('recent-payrolls').innerHTML = ultimosPeriodos.length
+        ? ultimosPeriodos.map(p => `
+            <tr>
+              <td><strong>${p.nombre}</strong></td>
+              <td>${statusBadge(p.estado)}</td>
+              <td><strong>${fmt.currency(p.total_neto)}</strong></td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="3" class="text-muted" style="padding:20px;text-align:center">Sin períodos registrados</td></tr>';
+
+      // Barras de masa salarial
+      const maxSal = Math.max(...porDepartamento.map(d => parseFloat(d.masa_salarial) || 0));
+      document.getElementById('dept-list').innerHTML = porDepartamento.map(d => `
+        <div>
+          <div class="flex justify-between text-sm" style="margin-bottom:6px">
+            <span>${d.nombre} <span class="text-muted">(${d.total} emp.)</span></span>
+            <strong>${fmt.currency(d.masa_salarial)}</strong>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${maxSal > 0 ? (d.masa_salarial/maxSal*100) : 0}%;
+              background:linear-gradient(90deg,#4facfe,#00f2fe);border-radius:3px;transition:width 1s ease">
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('dashboard-content').classList.remove('hidden');
+      loadNotifications();
+
+    } catch (e) {
+      document.getElementById('loading-state').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Error cargando datos</h3><p>Verifica la conexión con el servidor</p></div>';
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>
