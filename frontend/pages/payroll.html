@@ -1,314 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nómina — PaySchool</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css">
+    <meta charset="UTF-8">
+    <title>Nómina | PaySchool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-<div class="app-layout">
-  <aside class="sidebar">
-    <div class="sidebar-logo"><a href="dashboard.html" class="logo-mark"><div class="logo-icon">🎓</div><div class="logo-text"><span class="logo-pay">Pay</span><span class="logo-school">School</span></div></a></div>
-    <div class="sidebar-user"><div class="user-avatar" id="user-avatar">SA</div><div class="user-info"><div class="user-name" id="user-name">Cargando...</div><div class="user-role" id="user-role">—</div></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Principal</div>
-      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
-      <a href="employees.html" class="nav-item"><span class="nav-icon">👥</span>Empleados</a>
-      <a href="payroll.html" class="nav-item active"><span class="nav-icon">💰</span>Nómina</a>
-      <a href="accounting.html" class="nav-item"><span class="nav-icon">📒</span>Libros Contables</a>
-      <a href="users.html" class="nav-item"><span class="nav-icon">🔑</span>Usuarios</a>
-      <div class="nav-section-label" style="margin-top:12px">Sistema</div>
-      <a href="logs.html" class="nav-item"><span class="nav-icon">📋</span>Bitácora</a>
-    </nav>
-    <div class="sidebar-footer"><button class="nav-item" id="logout-btn" style="width:100%"><span class="nav-icon">🚪</span>Cerrar Sesión</button></div>
-  </aside>
+<body class="min-h-screen flex">
+    <aside class="w-72 bg-slate-900 text-white flex flex-col hidden md:flex shadow-2xl z-20">
+        <div class="p-8 text-3xl font-bold border-b border-slate-800 text-sky-400"><i class="fa-solid fa-graduation-cap mr-3"></i>PaySchool</div>
+        <nav class="flex-1 p-5 space-y-3 mt-4">
+            <a href="/dashboard.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-chart-pie w-6 mr-3"></i> Resumen</a>
+            <a href="/employees.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-users w-6 mr-3"></i> Personal</a>
+            <a href="/payroll.html" class="sidebar-item active-nav flex items-center p-4 rounded-xl font-semibold text-white"><i class="fa-solid fa-file-invoice-dollar w-6 mr-3"></i> Nómina</a>
+            <a href="/accounting.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-book w-6 mr-3"></i> Contabilidad</a>
+        </nav>
+    </aside>
 
-  <div class="main-content">
-    <header class="topbar">
-      <h1 class="topbar-title">Nómina</h1>
-      <div class="topbar-actions">
-        <button class="topbar-btn" id="notif-btn">🔔<span class="notif-dot" id="notif-dot" style="display:none"></span></button>
-      </div>
-    </header>
-    <div class="notif-panel" id="notif-panel">
-      <div class="notif-header"><span class="notif-title">Notificaciones</span></div>
-      <div id="notif-list"><div class="loading"><div class="spinner"></div></div></div>
-    </div>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="bg-white shadow-sm p-6 flex justify-between items-center z-10">
+            <h1 class="text-2xl font-bold text-slate-800">Liquidación de Nómina</h1>
+            <button id="btnGenerar" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition"><i class="fa-solid fa-calculator mr-2"></i> Generar Nómina</button>
+        </header>
 
-    <div class="page-content">
-      <div class="page-header">
-        <div class="page-header-left">
-          <h1>Períodos de Nómina</h1>
-          <p>Gestiona y procesa los pagos del personal</p>
-        </div>
-        <button class="btn btn-primary" onclick="modal.open('period-modal')">+ Nuevo Período</button>
-      </div>
-
-      <!-- Periods Table -->
-      <div class="card" style="padding:0;margin-bottom:24px">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
-          <h3 class="card-title">📋 Períodos Registrados</h3>
-        </div>
-        <div id="loading-periods" class="loading"><div class="spinner"></div></div>
-        <div class="table-container" id="periods-table" style="display:none">
-          <table>
-            <thead>
-              <tr>
-                <th>Período</th>
-                <th>Tipo</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Pago</th>
-                <th>Total Ingresos</th>
-                <th>Total Neto</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="periods-tbody"></tbody>
-          </table>
-        </div>
-        <div id="periods-empty" class="empty-state hidden">
-          <div class="empty-icon">💰</div>
-          <h3>Sin períodos</h3>
-          <p>Crea el primer período de nómina</p>
-        </div>
-      </div>
-
-      <!-- Detail section (appears when a period is selected) -->
-      <div id="detail-section" class="hidden">
-        <div class="card" style="padding:0">
-          <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h3 class="card-title" id="detail-title">Detalle de Nómina</h3>
-              <p class="text-muted text-sm" id="detail-subtitle"></p>
+        <div class="p-8 flex-1 overflow-y-auto">
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead><tr><th class="p-4">Empleado</th><th class="p-4">Devengado</th><th class="p-4">Deducido</th><th class="p-4">Neto a Pagar</th></tr></thead>
+                    <tbody id="tablaNomina" class="divide-y divide-slate-100">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-500">Presiona "Generar Nómina" para calcular el mes actual.</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="closeDetail()">✕ Cerrar</button>
-          </div>
-          <div id="loading-detail" class="loading"><div class="spinner"></div></div>
-          <div class="table-container" id="detail-table" style="display:none">
-            <table>
-              <thead>
-                <tr>
-                  <th>Empleado</th>
-                  <th>Departamento</th>
-                  <th>Días Trab.</th>
-                  <th>Ingresos</th>
-                  <th>Deducciones</th>
-                  <th>Neto a Pagar</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody id="detail-tbody"></tbody>
-            </table>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
+    </main>
 
-<!-- Modal Nuevo Período -->
-<div class="modal-overlay" id="period-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 class="modal-title">Nuevo Período de Nómina</h2>
-      <button class="modal-close" onclick="modal.close('period-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Nombre del Período *</label>
-        <input class="form-control" id="p-nombre" placeholder="Ej: Nómina Enero 2025">
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Tipo</label>
-          <select class="form-control" id="p-tipo">
-            <option value="mensual">Mensual</option>
-            <option value="quincenal">Quincenal</option>
-            <option value="semanal">Semanal</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fecha de Pago *</label>
-          <input type="date" class="form-control" id="p-fecha_pago">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fecha Inicio *</label>
-          <input type="date" class="form-control" id="p-fecha_inicio">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fecha Fin *</label>
-          <input type="date" class="form-control" id="p-fecha_fin">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Observaciones</label>
-        <input class="form-control" id="p-observaciones" placeholder="Notas opcionales...">
-      </div>
-
-      <div class="alert alert-info">
-        ℹ️ Al crear el período, podrás procesarlo para calcular automáticamente la nómina de todos los empleados activos.
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="modal.close('period-modal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="createPeriod()" id="create-period-btn">💾 Crear Período</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast-container" class="toast-container"></div>
-<script src="../js/app.js"></script>
-<script>
-  if (!api.requireAuth()) throw '';
-
-  async function loadPeriods() {
-    document.getElementById('loading-periods').style.display = 'flex';
-    document.getElementById('periods-table').style.display = 'none';
-    document.getElementById('periods-empty').classList.add('hidden');
-
-    const data = await api.get('/nomina/periodos');
-    const periods = data?.data || [];
-
-    document.getElementById('loading-periods').style.display = 'none';
-
-    if (!periods.length) {
-      document.getElementById('periods-empty').classList.remove('hidden');
-      return;
-    }
-
-    document.getElementById('periods-tbody').innerHTML = periods.map(p => `
-      <tr>
-        <td><strong>${p.nombre}</strong></td>
-        <td><span class="badge badge-info">${p.tipo}</span></td>
-        <td>${fmt.date(p.fecha_inicio)}</td>
-        <td>${fmt.date(p.fecha_pago)}</td>
-        <td>${fmt.currency(p.total_ingresos)}</td>
-        <td><strong style="color:var(--accent-green)">${fmt.currency(p.total_neto)}</strong></td>
-        <td>${statusBadge(p.estado)}</td>
-        <td>
-          <div class="flex gap-2">
-            <button class="btn btn-sm btn-secondary" onclick="viewDetail(${p.id}, '${p.nombre}', '${p.estado}')" title="Ver detalle">👁</button>
-            ${p.estado === 'borrador' ? `<button class="btn btn-sm btn-primary" onclick="processPayroll(${p.id})" title="Procesar nómina">⚙️ Procesar</button>` : ''}
-            ${p.estado === 'aprobado' ? `<button class="btn btn-sm btn-success" onclick="markAsPaid(${p.id})" title="Marcar como pagado">💰 Pagar</button>` : ''}
-          </div>
-        </td>
-      </tr>
-    `).join('');
-
-    document.getElementById('periods-table').style.display = 'block';
-  }
-
-  async function createPeriod() {
-    const btn = document.getElementById('create-period-btn');
-    btn.disabled = true; btn.textContent = 'Creando...';
-
-    const payload = {
-      nombre: document.getElementById('p-nombre').value,
-      tipo: document.getElementById('p-tipo').value,
-      fecha_inicio: document.getElementById('p-fecha_inicio').value,
-      fecha_fin: document.getElementById('p-fecha_fin').value,
-      fecha_pago: document.getElementById('p-fecha_pago').value,
-      observaciones: document.getElementById('p-observaciones').value
-    };
-
-    if (!payload.nombre || !payload.fecha_inicio || !payload.fecha_fin || !payload.fecha_pago) {
-      toast.warning('Completa todos los campos requeridos');
-      btn.disabled = false; btn.textContent = '💾 Crear Período';
-      return;
-    }
-
-    const data = await api.post('/nomina/periodos', payload);
-    btn.disabled = false; btn.textContent = '💾 Crear Período';
-
-    if (data?.success) {
-      toast.success('Período creado exitosamente');
-      modal.close('period-modal');
-      document.getElementById('p-nombre').value = '';
-      loadPeriods();
-    } else {
-      toast.error(data?.message || 'Error al crear período');
-    }
-  }
-
-  async function processPayroll(id) {
-    if (!confirm('¿Procesar la nómina automáticamente para todos los empleados activos?')) return;
-    toast.info('Procesando nómina...');
-    const data = await api.post(`/nomina/periodos/${id}/procesar`);
-    if (data?.success) {
-      toast.success(`✅ ${data.message}`);
-      loadPeriods();
-    } else {
-      toast.error(data?.message || 'Error al procesar');
-    }
-  }
-
-  async function markAsPaid(id) {
-    if (!confirm('¿Marcar esta nómina como pagada? Esta acción notificará a todos los empleados.')) return;
-    const data = await api.put(`/nomina/periodos/${id}/pagar`);
-    if (data?.success) {
-      toast.success('💰 Nómina marcada como pagada. Empleados notificados.');
-      loadPeriods();
-    } else {
-      toast.error('Error al actualizar');
-    }
-  }
-
-  async function viewDetail(id, nombre, estado) {
-    const section = document.getElementById('detail-section');
-    section.classList.remove('hidden');
-    document.getElementById('detail-title').textContent = `Detalle: ${nombre}`;
-    document.getElementById('detail-subtitle').textContent = `Estado: ${estado}`;
-    document.getElementById('loading-detail').style.display = 'flex';
-    document.getElementById('detail-table').style.display = 'none';
-    section.scrollIntoView({ behavior: 'smooth' });
-
-    const data = await api.get(`/nomina/periodos/${id}/detalle`);
-    const rows = data?.data || [];
-    document.getElementById('loading-detail').style.display = 'none';
-
-    if (!rows.length) {
-      document.getElementById('detail-tbody').innerHTML =
-        '<tr><td colspan="7" class="text-muted" style="padding:30px;text-align:center">Sin registros en este período</td></tr>';
-    } else {
-      let totalNeto = 0;
-      document.getElementById('detail-tbody').innerHTML = rows.map(r => {
-        totalNeto += parseFloat(r.salario_neto || 0);
-        return `
-          <tr>
-            <td>
-              <div style="font-weight:600">${r.empleado}</div>
-              <div style="font-size:12px;color:var(--text-secondary)">${r.codigo}</div>
-            </td>
-            <td>${r.departamento || '—'}</td>
-            <td>${r.dias_trabajados}</td>
-            <td><span style="color:var(--accent-green)">${fmt.currency(r.total_ingresos)}</span></td>
-            <td><span style="color:var(--accent-red)">-${fmt.currency(r.total_deducciones)}</span></td>
-            <td><strong>${fmt.currency(r.salario_neto)}</strong></td>
-            <td>${statusBadge(r.estado)}</td>
-          </tr>
-        `;
-      }).join('');
-      document.getElementById('detail-tbody').innerHTML += `
-        <tr style="background:rgba(99,179,237,0.05);border-top:2px solid rgba(99,179,237,0.2)">
-          <td colspan="5" style="text-align:right;font-weight:700;padding-right:20px">TOTAL NETO:</td>
-          <td><strong style="color:var(--accent-blue);font-size:16px">${fmt.currency(totalNeto)}</strong></td>
-          <td></td>
-        </tr>
-      `;
-    }
-    document.getElementById('detail-table').style.display = 'block';
-  }
-
-  function closeDetail() {
-    document.getElementById('detail-section').classList.add('hidden');
-  }
-
-  loadPeriods();
-  loadNotifications();
-</script>
+    <script>
+        document.getElementById('btnGenerar').addEventListener('click', async () => {
+            const btn = document.getElementById('btnGenerar'); btn.innerText = "Calculando..."; btn.disabled = true;
+            try {
+                const res = await fetch('/api/payroll/calcular', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periodo: 'Mensual', mes: 3, anio: 2026 }) });
+                const data = await res.json();
+                if (data.success && data.data.detalles.length > 0) {
+                    document.getElementById('tablaNomina').innerHTML = data.data.detalles.map(n => `<tr><td class="p-4 font-bold">${n.nombre}</td><td class="p-4 text-emerald-600">$${n.totalDevengado.toLocaleString()}</td><td class="p-4 text-rose-500">$${n.totalDeducido.toLocaleString()}</td><td class="p-4 font-bold">$${n.netoPagar.toLocaleString()}</td></tr>`).join('');
+                } else {
+                    document.getElementById('tablaNomina').innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">No hay empleados para calcular.</td></tr>`;
+                }
+            } catch (e) { alert("Error de conexión"); } finally { btn.innerHTML = '<i class="fa-solid fa-calculator mr-2"></i> Generar Nómina'; btn.disabled = false; }
+        });
+    </script>
 </body>
 </html>

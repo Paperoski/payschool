@@ -1,74 +1,54 @@
-
-// =============================================================
-// PAYSCHOOL - Módulo Contable JSON
-// =============================================================
-
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
-const movimientosPath = path.join(__dirname, '../data/movimientos.json');
+const asientosPath = path.join(__dirname, '../../data/asientos_contables.json');
+const pucPath = path.join(__dirname, '../../data/puc_base.json');
 
-if (!fs.existsSync(movimientosPath)) {
-  fs.writeFileSync(movimientosPath, JSON.stringify([]));
-}
+router.post('/asiento', (req, res) => {
+    try {
+        const { fecha, descripcion, comprobante, movimientos } = req.body;
+        
+        // 1. Validar Partida Doble (Sumatoria Débitos == Sumatoria Créditos)
+        const totalDebito = movimientos.reduce((acc, mov) => acc + (Number(mov.debito) || 0), 0);
+        const totalCredito = movimientos.reduce((acc, mov) => acc + (Number(mov.credito) || 0), 0);
 
-// Crear asiento
-router.post('/asientos', (req, res) => {
+        if (totalDebito !== totalCredito) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Error contable: Débitos ($${totalDebito}) y Créditos ($${totalCredito}) no cuadran.` 
+            });
+        }
 
-  const { detalle, movimientos } = req.body;
+        // 2. Validar que las cuentas existan en el PUC base
+        const pucBase = JSON.parse(fs.readFileSync(pucPath, 'utf8'));
+        for (let mov of movimientos) {
+            const cuentaExiste = pucBase.find(c => c.codigo === String(mov.cuenta_puc));
+            if (!cuentaExiste) {
+                return res.status(400).json({ success: false, message: `La cuenta PUC ${mov.cuenta_puc} no existe en el catálogo.` });
+            }
+        }
 
-  if (!movimientos || movimientos.length < 2) {
-    return res.status(400).json({ success: false, message: "Debe tener mínimo 2 movimientos" });
-  }
+        // 3. Registrar el Asiento
+        const asientos = JSON.parse(fs.readFileSync(asientosPath, 'utf8'));
+        const nuevoAsiento = {
+            id: asientos.length > 0 ? Math.max(...asientos.map(a => a.id)) + 1 : 1,
+            fecha: fecha || new Date().toISOString().split('T')[0],
+            descripcion,
+            comprobante, // Ej: "Pago pensión alumno grado 10" o "Nómina general"
+            movimientos,
+            total: totalDebito,
+            estado: 'Asentado'
+        };
 
-  let debe = 0;
-  let haber = 0;
+        asientos.push(nuevoAsiento);
+        fs.writeFileSync(asientosPath, JSON.stringify(asientos, null, 2));
 
-  movimientos.forEach(m => {
-    debe += m.debito || 0;
-    haber += m.credito || 0;
-  });
-
-  if (debe !== haber) {
-    return res.status(400).json({ success: false, message: "Debe ≠ Haber" });
-  }
-
-  const data = JSON.parse(fs.readFileSync(movimientosPath));
-  const nuevo = {
-    id: data.length + 1,
-    fecha: new Date(),
-    detalle,
-    movimientos
-  };
-
-  data.push(nuevo);
-  fs.writeFileSync(movimientosPath, JSON.stringify(data, null, 2));
-
-  res.json({ success: true, asiento: nuevo });
-});
-
-// Balance simple
-router.get('/balance', (req, res) => {
-
-  const data = JSON.parse(fs.readFileSync(movimientosPath));
-  let totalDebe = 0;
-  let totalHaber = 0;
-
-  data.forEach(a => {
-    a.movimientos.forEach(m => {
-      totalDebe += m.debito || 0;
-      totalHaber += m.credito || 0;
-    });
-  });
-
-  res.json({
-    success: true,
-    totalDebe,
-    totalHaber,
-    equilibrio: totalDebe === totalHaber
-  });
+        res.status(201).json({ success: true, message: 'Asiento contable registrado', data: nuevoAsiento });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error interno del servidor', error: error.message });
+    }
 });
 
 module.exports = router;

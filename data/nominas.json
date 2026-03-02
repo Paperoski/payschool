@@ -1,1 +1,124 @@
-[]
+[
+  {
+    "id": 1,
+    "periodo": "Mensual",
+    "mes": 3,
+    "anio": 2026,
+    "fecha_generacion": "2026-03-02T04:21:20.527Z",
+    "detalles": [
+      {
+        "id_empleado": 1,
+        "nombre": "María",
+        "cargo": "Docente de Matemáticas",
+        "totalDevengado": 164500,
+        "deducciones": {
+          "salud": 100,
+          "pension": 100,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 200,
+        "netoPagar": 164300
+      },
+      {
+        "id_empleado": 2,
+        "nombre": "Carlos",
+        "cargo": "Docente de Ciencias",
+        "totalDevengado": 164400,
+        "deducciones": {
+          "salud": 96,
+          "pension": 96,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 192,
+        "netoPagar": 164208
+      },
+      {
+        "id_empleado": 3,
+        "nombre": "Laura",
+        "cargo": "Secretaria Académica",
+        "totalDevengado": 163800,
+        "deducciones": {
+          "salud": 72,
+          "pension": 72,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 144,
+        "netoPagar": 163656
+      },
+      {
+        "id_empleado": 4,
+        "nombre": "Pedro",
+        "cargo": "Contador General",
+        "totalDevengado": 165000,
+        "deducciones": {
+          "salud": 120,
+          "pension": 120,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 240,
+        "netoPagar": 164760
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "periodo": "Mensual",
+    "mes": 3,
+    "anio": 2026,
+    "fecha_generacion": "2026-03-02T04:21:41.518Z",
+    "detalles": [
+      {
+        "id_empleado": 1,
+        "nombre": "María",
+        "cargo": "Docente de Matemáticas",
+        "totalDevengado": 164500,
+        "deducciones": {
+          "salud": 100,
+          "pension": 100,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 200,
+        "netoPagar": 164300
+      },
+      {
+        "id_empleado": 2,
+        "nombre": "Carlos",
+        "cargo": "Docente de Ciencias",
+        "totalDevengado": 164400,
+        "deducciones": {
+          "salud": 96,
+          "pension": 96,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 192,
+        "netoPagar": 164208
+      },
+      {
+        "id_empleado": 3,
+        "nombre": "Laura",
+        "cargo": "Secretaria Académica",
+        "totalDevengado": 163800,
+        "deducciones": {
+          "salud": 72,
+          "pension": 72,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 144,
+        "netoPagar": 163656
+      },
+      {
+        "id_empleado": 4,
+        "nombre": "Pedro",
+        "cargo": "Contador General",
+        "totalDevengado": 165000,
+        "deducciones": {
+          "salud": 120,
+          "pension": 120,
+          "retencion_fuente": 0
+        },
+        "totalDeducido": 240,
+        "netoPagar": 164760
+      }
+    ]
+  }
+]
