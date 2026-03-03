@@ -76,6 +76,20 @@ body {
   align-items: flex-start;
   gap: 16px;
 }
+.grid.kpi { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.grid.two { grid-template-columns: 1.3fr 1fr; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.card h3 { margin-top: 0; }
+.metric-label { color: var(--muted); font-size: 0.88rem; }
+.metric-value { font-size: 1.9rem; font-weight: 700; margin-top: 6px; }
 
 .title { margin: 0; font-size: 1.8rem; }
 .subtitle { margin: 6px 0 0; color: var(--muted); }
