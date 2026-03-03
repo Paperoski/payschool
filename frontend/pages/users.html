@@ -24,7 +24,7 @@
     <header class="header">
       <div>
         <h1 class="title">Usuarios y control de acceso</h1>
-        <p class="subtitle">Gestión de cuentas internas para operación empresarial.</p>
+        <p class="subtitle">Crear, activar/desactivar y eliminar usuarios administrativos.</p>
       </div>
     </header>
 
@@ -47,7 +47,7 @@
     <section class="card table-wrap">
       <h3>Usuarios del sistema</h3>
       <table>
-        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Creación</th></tr></thead>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Creación</th><th>Acciones</th></tr></thead>
         <tbody id="users-body"></tbody>
       </table>
     </section>
@@ -69,9 +69,13 @@
           <td>${user.rol}</td>
           <td>${user.activo === false ? '<span class="pill alert">Inactivo</span>' : '<span class="pill ok">Activo</span>'}</td>
           <td>${new Date(user.fecha_creacion).toLocaleDateString('es-CO')}</td>
+          <td>
+            <button class="btn" onclick="toggleUser(${user.id}, ${user.activo === false})">${user.activo === false ? 'Activar' : 'Inactivar'}</button>
+            <button class="btn btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
+          </td>
         </tr>
       `).join('')
-      : '<tr><td colspan="6">No hay usuarios registrados.</td></tr>';
+      : '<tr><td colspan="7">No hay usuarios registrados.</td></tr>';
   }
 
   async function createUser() {
@@ -83,14 +87,29 @@
     };
 
     const response = await fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
     });
     const result = await response.json();
     if (!result.success) return alert(result.message || 'Error creando usuario.');
 
     ['nombre', 'email', 'password'].forEach((id) => { document.getElementById(id).value = ''; });
+    loadUsers();
+  }
+
+  async function toggleUser(id, newStatus) {
+    const response = await fetch(`/api/users/${id}/status`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo: newStatus })
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo actualizar estado.');
+    loadUsers();
+  }
+
+  async function deleteUser(id) {
+    if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
+    const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo eliminar.');
     loadUsers();
   }
 

@@ -49,7 +49,7 @@
           <h3>Chat institucional</h3>
           <div class="chat-box" id="chat-box"></div>
           <div class="form-grid" style="margin-top: 10px; grid-template-columns: 1fr 2fr auto;">
-            <input id="chat-author" class="input" placeholder="Nombre" />
+            <input id="chat-author" class="input" placeholder="Nombre" readonly />
             <input id="chat-message" class="input" placeholder="Mensaje" />
             <button class="btn" onclick="sendMessage()">Enviar</button>
           </div>
@@ -72,6 +72,12 @@
 
   <script>
     let monthlyChart;
+    function setupChatAuthor() {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const fallback = user.nombre || user.email || 'Usuario';
+      document.getElementById('chat-author').value = fallback;
+    }
+
 
     async function loadDashboard() {
       const [employees, accounting, payroll, chat, audit, changes] = await Promise.all([
@@ -137,7 +143,7 @@
         ? messages.map(m => `
             <div class="msg">
               <strong>${m.autor}</strong> · <small>${new Date(m.fecha).toLocaleString('es-CO')}</small>
-              <div>${m.mensaje}</div>
+              <div><b>${m.autor}:</b> ${m.mensaje}</div>
             </div>
           `).join('')
         : '<p class="subtitle">No hay mensajes aún.</p>';
@@ -173,9 +179,11 @@
         return;
       }
       document.getElementById('chat-message').value = '';
+      setupChatAuthor();
       loadDashboard();
     }
 
+    setupChatAuthor();
     loadDashboard();
   </script>
 </body>

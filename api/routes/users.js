@@ -55,4 +55,14 @@ router.put('/:id/status', (req, res) => {
   return res.json({ success: true, message: 'Estado de usuario actualizado.' });
 });
 
+router.delete('/:id', (req, res) => {
+  const users = readJson(usersPath, []);
+  const idx = users.findIndex((u) => Number(u.id) === Number(req.params.id));
+  if (idx === -1) return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+
+  const removed = users.splice(idx, 1)[0];
+  writeJson(usersPath, users);
+  return res.json({ success: true, message: 'Usuario eliminado correctamente.', data: { id: removed.id } });
+});
+
 module.exports = router;

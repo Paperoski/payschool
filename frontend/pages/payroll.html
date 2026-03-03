@@ -24,30 +24,33 @@
     <header class="header">
       <div>
         <h1 class="title">Motor de Nómina</h1>
-        <p class="subtitle">Cálculo, simulación y trazabilidad de periodos de pago.</p>
+        <p class="subtitle">Flujo normal de nómina + simulación previa por empleado.</p>
       </div>
     </header>
 
     <section class="card" style="margin-bottom:16px;">
-      <h3>Generar nómina</h3>
+      <h3>Procesar nómina</h3>
       <div class="form-grid">
         <input id="periodo" class="input" placeholder="Periodo (Ej. Mensual)" />
         <input id="mes" class="input" placeholder="Mes" />
         <input id="anio" type="number" class="input" placeholder="Año" />
-        <select id="guardar">
-          <option value="true">Guardar en historial</option>
-          <option value="false">Solo simular</option>
-        </select>
-        <button class="btn" onclick="calculatePayroll()">Procesar nómina</button>
+        <button class="btn" onclick="simulatePayroll()">Simular nómina</button>
+        <button class="btn" onclick="savePayroll()">Guardar nómina</button>
       </div>
+    </section>
+
+    <section class="card table-wrap" style="margin-bottom:16px;">
+      <h3>Resultado de simulación</h3>
+      <table>
+        <thead><tr><th>Empleado</th><th>Cargo</th><th>Devengado</th><th>Deducciones</th><th>Neto</th></tr></thead>
+        <tbody id="simulation-table"><tr><td colspan="5">Sin simulación.</td></tr></tbody>
+      </table>
     </section>
 
     <section class="card table-wrap">
       <h3>Historial de nómina</h3>
       <table>
-        <thead>
-          <tr><th>ID</th><th>Periodo</th><th>Fecha</th><th>Empleados</th><th>Neto total</th></tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Periodo</th><th>Fecha</th><th>Empleados</th><th>Neto total</th></tr></thead>
         <tbody id="payroll-table"></tbody>
       </table>
     </section>
@@ -55,6 +58,30 @@
 </div>
 
 <script>
+  function payrollPayload(guardar) {
+    return {
+      periodo: document.getElementById('periodo').value.trim() || 'Mensual',
+      mes: document.getElementById('mes').value.trim() || 'Actual',
+      anio: Number(document.getElementById('anio').value) || new Date().getFullYear(),
+      guardar
+    };
+  }
+
+  function renderSimulation(result) {
+    const rows = result?.data?.detalles || [];
+    document.getElementById('simulation-table').innerHTML = rows.length
+      ? rows.map((item) => `
+          <tr>
+            <td>${item.nombre}</td>
+            <td>${item.cargo}</td>
+            <td>$${Math.round(item.totalDevengado).toLocaleString('es-CO')}</td>
+            <td>$${Math.round(item.totalDeducido).toLocaleString('es-CO')}</td>
+            <td><strong>$${Math.round(item.netoPagar).toLocaleString('es-CO')}</strong></td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="5">No hay empleados para simular.</td></tr>';
+  }
+
   async function loadPayroll() {
     const response = await fetch('/api/payroll/historial');
     const result = await response.json();
@@ -62,35 +89,31 @@
     document.getElementById('payroll-table').innerHTML = (result.data || []).length
       ? result.data.map((payroll) => {
           const neto = (payroll.detalles || []).reduce((acc, item) => acc + (item.netoPagar || 0), 0);
-          return `
-            <tr>
-              <td>${payroll.id}</td>
-              <td>${payroll.periodo} - ${payroll.mes} ${payroll.anio}</td>
-              <td>${new Date(payroll.fecha_generacion).toLocaleString('es-CO')}</td>
-              <td>${(payroll.detalles || []).length}</td>
-              <td>$${Math.round(neto).toLocaleString('es-CO')}</td>
-            </tr>
-          `;
+          return `<tr><td>${payroll.id}</td><td>${payroll.periodo} - ${payroll.mes} ${payroll.anio}</td><td>${new Date(payroll.fecha_generacion).toLocaleString('es-CO')}</td><td>${(payroll.detalles || []).length}</td><td>$${Math.round(neto).toLocaleString('es-CO')}</td></tr>`;
         }).join('')
       : '<tr><td colspan="5">Sin nóminas generadas.</td></tr>';
   }
 
-  async function calculatePayroll() {
-    const body = {
-      periodo: document.getElementById('periodo').value.trim() || 'Mensual',
-      mes: document.getElementById('mes').value.trim() || 'Actual',
-      anio: Number(document.getElementById('anio').value) || new Date().getFullYear(),
-      guardar: document.getElementById('guardar').value === 'true'
-    };
-
+  async function simulatePayroll() {
     const response = await fetch('/api/payroll/calcular', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(payrollPayload(false))
     });
     const result = await response.json();
+    if (!result.success) return alert(result.message || 'No fue posible simular la nómina.');
+    renderSimulation(result);
+  }
 
-    if (!result.success) return alert(result.message || 'No fue posible procesar la nómina.');
+  async function savePayroll() {
+    const response = await fetch('/api/payroll/calcular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payrollPayload(true))
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No fue posible guardar la nómina.');
+    renderSimulation(result);
     alert(result.message);
     loadPayroll();
   }

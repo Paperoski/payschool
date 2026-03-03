@@ -23,8 +23,8 @@
   <main class="main">
     <header class="header">
       <div>
-        <h1 class="title">Gestión de Empleados</h1>
-        <p class="subtitle">Alta, mantenimiento y estado del personal institucional.</p>
+        <h1 class="title">Gestión de Empleados y Docentes</h1>
+        <p class="subtitle">Alta y baja operativa del personal de nómina.</p>
       </div>
     </header>
 
@@ -34,7 +34,7 @@
         <input id="nombre" class="input" placeholder="Nombre" />
         <input id="apellido" class="input" placeholder="Apellido" />
         <input id="cedula" class="input" placeholder="Cédula" />
-        <input id="cargo" class="input" placeholder="Cargo" />
+        <input id="cargo" class="input" placeholder="Cargo (Docente, etc.)" />
         <input id="salario_base" type="number" class="input" placeholder="Salario base" />
         <button class="btn" onclick="createEmployee()">Crear</button>
       </div>
@@ -43,9 +43,7 @@
     <section class="card table-wrap">
       <h3>Empleados registrados</h3>
       <table>
-        <thead>
-          <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Salario</th><th>Estado</th></tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Salario</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody id="employees-table"></tbody>
       </table>
     </section>
@@ -67,9 +65,12 @@
             <td>${e.cargo}</td>
             <td>$${Number(e.salario_base).toLocaleString('es-CO')}</td>
             <td>${e.activo === false ? '<span class="pill alert">Inactivo</span>' : '<span class="pill ok">Activo</span>'}</td>
+            <td>
+              ${e.activo === false ? '' : `<button class="btn btn-danger" onclick="deleteEmployee(${e.id})">Dar de baja</button>`}
+            </td>
           </tr>
         `).join('')
-      : '<tr><td colspan="6">No hay empleados.</td></tr>';
+      : '<tr><td colspan="7">No hay empleados.</td></tr>';
   }
 
   async function createEmployee() {
@@ -82,17 +83,20 @@
     };
 
     const response = await fetch('/api/employees', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
     });
     const result = await response.json();
-
     if (!result.success) return alert(result.message || 'No se pudo crear el empleado.');
 
-    ['nombre', 'apellido', 'cedula', 'cargo', 'salario_base'].forEach((id) => {
-      document.getElementById(id).value = '';
-    });
+    ['nombre', 'apellido', 'cedula', 'cargo', 'salario_base'].forEach((id) => { document.getElementById(id).value = ''; });
+    loadEmployees();
+  }
+
+  async function deleteEmployee(id) {
+    if (!confirm('¿Dar de baja este empleado/docente?')) return;
+    const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo dar de baja.');
     loadEmployees();
   }
 

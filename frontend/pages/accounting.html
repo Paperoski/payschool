@@ -25,7 +25,7 @@
     <header class="header">
       <div>
         <h1 class="title">Sistema Contable Autónomo</h1>
-        <p class="subtitle">Validación de cuentas, control de partida doble y auditoría continua.</p>
+        <p class="subtitle">Registro contable en formato normal (formulario), la app lo transforma internamente a JSON.</p>
       </div>
     </header>
 
@@ -36,20 +36,22 @@
         <input id="descripcion" class="input" placeholder="Descripción" />
         <input id="comprobante" class="input" placeholder="Comprobante" />
       </div>
-      <p class="subtitle">Movimientos (JSON):</p>
-      <textarea id="movimientos" class="input" rows="6" placeholder='[{"cuenta_puc":"110505","debito":100000,"credito":0},{"cuenta_puc":"413505","debito":0,"credito":100000}]'></textarea>
-      <button class="btn" style="margin-top:10px;" onclick="createEntry()">Registrar asiento</button>
+      <p class="subtitle">Movimientos contables:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cuenta PUC</th><th>Débito</th><th>Crédito</th><th>Acción</th></tr></thead>
+          <tbody id="movements-body"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn" type="button" onclick="addMovementRow()">+ Agregar movimiento</button>
+        <button class="btn" type="button" onclick="createEntry()">Registrar asiento</button>
+      </div>
     </section>
 
     <section class="grid two" style="margin-bottom:16px;">
-      <article class="card">
-        <h3>Resumen contable</h3>
-        <div id="summary"></div>
-      </article>
-      <article class="card">
-        <h3>Estado autónomo</h3>
-        <div id="audit"></div>
-      </article>
+      <article class="card"><h3>Resumen contable</h3><div id="summary"></div></article>
+      <article class="card"><h3>Estado autónomo</h3><div id="audit"></div></article>
     </section>
 
     <section class="grid two">
@@ -67,6 +69,26 @@
 
 <script>
 let chart;
+
+function addMovementRow(data = {}) {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><input class="input mov-cuenta" placeholder="Ej. 110505" value="${data.cuenta_puc || ''}"></td>
+    <td><input type="number" class="input mov-debito" min="0" value="${data.debito || ''}"></td>
+    <td><input type="number" class="input mov-credito" min="0" value="${data.credito || ''}"></td>
+    <td><button class="btn btn-danger" type="button">Eliminar</button></td>
+  `;
+  row.querySelector('button').onclick = () => row.remove();
+  document.getElementById('movements-body').appendChild(row);
+}
+
+function collectMovements() {
+  return [...document.querySelectorAll('#movements-body tr')].map((tr) => ({
+    cuenta_puc: tr.querySelector('.mov-cuenta').value.trim(),
+    debito: Number(tr.querySelector('.mov-debito').value) || 0,
+    credito: Number(tr.querySelector('.mov-credito').value) || 0
+  })).filter((m) => m.cuenta_puc && (m.debito > 0 || m.credito > 0));
+}
 
 async function loadAccounting() {
   const [summaryRes, entriesRes, auditRes] = await Promise.all([
@@ -94,12 +116,7 @@ async function loadAccounting() {
   const entries = entriesRes.data || [];
   document.getElementById('entries-body').innerHTML = entries.length
     ? entries.slice(0, 10).map((entry) => `
-      <tr>
-        <td>${entry.fecha || '-'}</td>
-        <td>${entry.comprobante || '-'}</td>
-        <td>$${Number(entry.total || 0).toLocaleString('es-CO')}</td>
-        <td>${entry.estado || '-'}</td>
-      </tr>
+      <tr><td>${entry.fecha || '-'}</td><td>${entry.comprobante || '-'}</td><td>$${Number(entry.total || 0).toLocaleString('es-CO')}</td><td>${entry.estado || '-'}</td></tr>
     `).join('')
     : '<tr><td colspan="4">Sin asientos registrados.</td></tr>';
 
@@ -110,39 +127,38 @@ async function loadAccounting() {
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Total por periodo', data: values, backgroundColor: '#1d4ed8' }]
-    }
+    data: { labels, datasets: [{ label: 'Total por periodo', data: values, backgroundColor: '#1d4ed8' }] }
   });
 }
 
 async function createEntry() {
-  try {
-    const movimientos = JSON.parse(document.getElementById('movimientos').value || '[]');
-    const payload = {
-      fecha: document.getElementById('fecha').value,
-      descripcion: document.getElementById('descripcion').value,
-      comprobante: document.getElementById('comprobante').value,
-      movimientos
-    };
+  const payload = {
+    fecha: document.getElementById('fecha').value,
+    descripcion: document.getElementById('descripcion').value,
+    comprobante: document.getElementById('comprobante').value,
+    movimientos: collectMovements()
+  };
 
-    const response = await fetch('/api/accounting/asiento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const result = await response.json();
+  if (payload.movimientos.length < 2) return alert('Debes ingresar al menos 2 movimientos.');
 
-    if (!result.success) return alert(result.message || 'Error registrando asiento.');
-    alert('Asiento registrado correctamente.');
-    document.getElementById('movimientos').value = '';
-    loadAccounting();
-  } catch (error) {
-    alert('JSON de movimientos inválido.');
-  }
+  const response = await fetch('/api/accounting/asiento', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const result = await response.json();
+
+  if (!result.success) return alert(result.message || 'Error registrando asiento.');
+
+  alert('Asiento registrado correctamente.');
+  document.getElementById('movements-body').innerHTML = '';
+  addMovementRow();
+  addMovementRow();
+  loadAccounting();
 }
 
+addMovementRow();
+addMovementRow();
 loadAccounting();
 </script>
 </body>
