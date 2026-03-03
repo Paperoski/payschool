@@ -1,75 +1,195 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Contabilidad | PaySchool</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Contable Autónomo | PaySchool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/portal.js"></script>
 </head>
-<body class="min-h-screen flex">
-    <aside class="w-72 bg-slate-900 text-white flex flex-col hidden md:flex shadow-2xl z-20">
-        <div class="p-8 text-3xl font-bold border-b border-slate-800 text-sky-400"><i class="fa-solid fa-graduation-cap mr-3"></i>PaySchool</div>
-        <nav class="flex-1 p-5 space-y-3 mt-4">
-            <a href="/dashboard.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-chart-pie w-6 mr-3"></i> Resumen</a>
-            <a href="/employees.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-users w-6 mr-3"></i> Personal</a>
-            <a href="/payroll.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-file-invoice-dollar w-6 mr-3"></i> Nómina</a>
-            <a href="/accounting.html" class="sidebar-item active-nav flex items-center p-4 rounded-xl font-semibold text-white"><i class="fa-solid fa-book w-6 mr-3"></i> Contabilidad</a>
-        </nav>
-    </aside>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">🏫 Colegio Boston</div>
+    <nav class="nav">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/employees.html">Empleados</a>
+      <a href="/payroll.html">Nómina</a>
+      <a class="active" href="/accounting.html">Contabilidad</a>
+      <a href="/users.html">Usuarios</a>
+    </nav>
+  </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-white shadow-sm p-6 flex justify-between items-center z-10">
-            <h1 class="text-2xl font-bold text-slate-800">Libro Diario</h1>
-            <button onclick="abrirModalAsiento()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition"><i class="fa-solid fa-plus mr-2"></i> Nuevo Asiento</button>
-        </header>
+  <main class="main">
+    <header class="header">
+      <div>
+        <h1 class="title">Sistema Contable Autónomo</h1>
+        <p class="subtitle">Registro contable en formato normal (formulario), la app lo transforma internamente a JSON.</p>
+      </div>
+    </header>
 
-        <div class="p-8 flex-1 overflow-y-auto">
-            <div class="glass-card overflow-hidden">
-                <table class="w-full text-left">
-                    <thead><tr><th class="p-4">Fecha</th><th class="p-4">Comprobante</th><th class="p-4 text-right">Débito</th><th class="p-4 text-right">Crédito</th></tr></thead>
-                    <tbody id="tablaAsientos" class="divide-y divide-slate-100">
-                        <tr><td colspan="4" class="p-8 text-center text-slate-500">El libro diario está vacío. Registra un asiento.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <section class="card" style="margin-bottom:16px;">
+      <h3>Guía rápida de cuentas (institución educativa privada)</h3>
+      <p class="subtitle">Estas son cuentas comunes. Puedes usar subcuentas (ej: 110505) y el sistema las normaliza al catálogo base.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Código</th><th>Nombre</th><th>Uso recomendado</th></tr></thead>
+          <tbody id="quick-accounts"><tr><td colspan="3">Cargando guía...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
 
-    <div id="modalAsiento" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center">
-        <div class="bg-white w-full max-w-md rounded-2xl p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Registrar Asiento</h2>
-                <button onclick="cerrarModalAsiento()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form id="formAsiento">
-                <input type="text" id="asientoDesc" placeholder="Descripción (Ej: Pago matrícula)" required class="w-full p-3 mb-4 border rounded-lg">
-                <input type="number" id="asientoMonto" placeholder="Monto total ($)" required class="w-full p-3 border rounded-lg">
-                <button type="submit" class="w-full mt-6 bg-sky-500 text-white font-bold py-3 rounded-xl">Guardar Asiento</button>
-            </form>
-        </div>
-    </div>
+    <section class="card" style="margin-bottom:16px;">
+      <h3>Registrar asiento contable</h3>
+      <div class="form-grid">
+        <input id="fecha" type="date" class="input" />
+        <input id="descripcion" class="input" placeholder="Descripción" />
+        <input id="comprobante" class="input" placeholder="Comprobante" />
+      </div>
+      <p class="subtitle">Movimientos contables:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cuenta PUC</th><th>Débito</th><th>Crédito</th><th>Acción</th></tr></thead>
+          <tbody id="movements-body"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn" type="button" onclick="addMovementRow()">+ Agregar movimiento</button>
+        <button class="btn" type="button" onclick="createEntry()">Registrar asiento</button>
+      </div>
+    </section>
 
-    <script>
-        function abrirModalAsiento() { document.getElementById('modalAsiento').classList.add('modal-active'); document.getElementById('modalAsiento').classList.remove('hidden'); }
-        function cerrarModalAsiento() { document.getElementById('modalAsiento').classList.remove('modal-active'); document.getElementById('modalAsiento').classList.add('hidden'); document.getElementById('formAsiento').reset(); }
+    <section class="grid two" style="margin-bottom:16px;">
+      <article class="card"><h3>Resumen contable</h3><div id="summary"></div></article>
+      <article class="card"><h3>Estado autónomo</h3><div id="audit"></div></article>
+    </section>
 
-        document.getElementById('formAsiento').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const desc = document.getElementById('asientoDesc').value;
-            const monto = Number(document.getElementById('asientoMonto').value);
-            const fecha = new Date().toLocaleDateString();
+    <section class="grid two">
+      <article class="card"><h3>Tendencia mensual</h3><canvas id="chart"></canvas></article>
+      <article class="card table-wrap">
+        <h3>Últimos asientos</h3>
+        <table>
+          <thead><tr><th>Fecha</th><th>Comprobante</th><th>Total</th><th>Estado</th></tr></thead>
+          <tbody id="entries-body"></tbody>
+        </table>
+      </article>
+    </section>
+  </main>
+</div>
 
-            const tbody = document.getElementById('tablaAsientos');
-            if(tbody.innerHTML.includes('vacío')) tbody.innerHTML = ''; // Limpiar mensaje de vacío
+<script>
+if (!portal.guardPage("contador")) throw new Error("auth");
+portal.applyMenuAccess();
 
-            // Agrega la partida doble visualmente
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50"><td class="p-4">${fecha}</td><td class="p-4 font-bold">${desc}</td><td class="p-4 text-right text-emerald-600">$${monto.toLocaleString()}</td><td class="p-4 text-right text-slate-400">$0</td></tr>
-                <tr class="hover:bg-slate-50"><td class="p-4">${fecha}</td><td class="p-4 text-slate-500">Contrapartida</td><td class="p-4 text-right text-slate-400">$0</td><td class="p-4 text-right text-rose-500">$${monto.toLocaleString()}</td></tr>
-            `;
-            cerrarModalAsiento();
-        });
-    </script>
+let chart;
+
+function addMovementRow(data = {}) {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><input class="input mov-cuenta" placeholder="Ej. 110505" value="${data.cuenta_puc || ''}"></td>
+    <td><input type="number" class="input mov-debito" min="0" value="${data.debito || ''}"></td>
+    <td><input type="number" class="input mov-credito" min="0" value="${data.credito || ''}"></td>
+    <td><button class="btn btn-danger" type="button">Eliminar</button></td>
+  `;
+  row.querySelector('button').onclick = () => row.remove();
+  document.getElementById('movements-body').appendChild(row);
+}
+
+function collectMovements() {
+  return [...document.querySelectorAll('#movements-body tr')].map((tr) => ({
+    cuenta_puc: tr.querySelector('.mov-cuenta').value.trim(),
+    debito: Number(tr.querySelector('.mov-debito').value) || 0,
+    credito: Number(tr.querySelector('.mov-credito').value) || 0
+  })).filter((m) => m.cuenta_puc && (m.debito > 0 || m.credito > 0));
+}
+
+
+async function loadQuickAccounts() {
+  const response = await portal.apiFetch('/api/accounting/cuentas/guia');
+  const result = await response.json();
+  const rows = result.data || [];
+  document.getElementById('quick-accounts').innerHTML = rows.length
+    ? rows.map((r) => `<tr><td>${r.codigo}</td><td>${r.nombre}</td><td>${r.uso}</td></tr>`).join('')
+    : '<tr><td colspan="3">Sin guía disponible.</td></tr>';
+}
+
+async function loadAccounting() {
+  const [summaryRes, entriesRes, auditRes] = await Promise.all([
+    portal.apiFetch('/api/accounting/resumen').then(r => r.json()),
+    portal.apiFetch('/api/accounting/asientos').then(r => r.json()),
+    portal.apiFetch('/api/accounting/autonomo/verificar').then(r => r.json())
+  ]);
+
+  const summary = summaryRes.data || {};
+  const audit = auditRes.data || {};
+
+  document.getElementById('summary').innerHTML = `
+    <p>Total asientos: <strong>${summary.total_asientos || 0}</strong></p>
+    <p>Total movimientos: <strong>${summary.total_movimientos || 0}</strong></p>
+    <p>Débitos acumulados: <strong>$${Number(summary.total_debitos || 0).toLocaleString('es-CO')}</strong></p>
+  `;
+
+  const status = audit.summary?.overall_status || 'N/A';
+  document.getElementById('audit').innerHTML = `
+    <p><span class="pill ${status === 'OK' ? 'ok' : 'alert'}">${status}</span></p>
+    <p>Fuera de balance: <strong>${audit.summary?.out_of_balance_entries || 0}</strong></p>
+    <p>Cuentas inválidas: <strong>${audit.summary?.entries_with_invalid_accounts || 0}</strong></p>
+  `;
+
+  const entries = entriesRes.data || [];
+  document.getElementById('entries-body').innerHTML = entries.length
+    ? entries.slice(0, 10).map((entry) => `
+      <tr><td>${entry.fecha || '-'}</td><td>${entry.comprobante || '-'}</td><td>$${Number(entry.total || 0).toLocaleString('es-CO')}</td><td>${entry.estado || '-'}</td></tr>
+    `).join('')
+    : '<tr><td colspan="4">Sin asientos registrados.</td></tr>';
+
+  const monthly = summary.mensual || {};
+  const labels = Object.keys(monthly).sort();
+  const values = labels.map(k => monthly[k]);
+
+  if (chart) chart.destroy();
+  chart = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Total por periodo', data: values, backgroundColor: '#1d4ed8' }] }
+  });
+}
+
+async function createEntry() {
+  const payload = {
+    fecha: document.getElementById('fecha').value,
+    descripcion: document.getElementById('descripcion').value,
+    comprobante: document.getElementById('comprobante').value,
+    movimientos: collectMovements()
+  };
+
+  if (payload.movimientos.length < 2) return alert('Debes ingresar al menos 2 movimientos.');
+
+  const invalidDual = payload.movimientos.find((m) => m.debito > 0 && m.credito > 0);
+  if (invalidDual) return alert('Cada fila debe tener solo débito o solo crédito, no ambos.');
+
+  const response = await portal.apiFetch('/api/accounting/asiento', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const result = await response.json();
+
+  if (!result.success) return alert(result.message || 'Error registrando asiento.');
+
+  alert('Asiento registrado correctamente.');
+  document.getElementById('movements-body').innerHTML = '';
+  addMovementRow();
+  addMovementRow();
+  loadQuickAccounts();
+  loadAccounting();
+}
+
+addMovementRow();
+addMovementRow();
+loadQuickAccounts();
+loadAccounting();
+</script>
 </body>
 </html>
