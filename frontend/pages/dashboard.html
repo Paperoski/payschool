@@ -83,14 +83,24 @@ portal.applyMenuAccess();
     }
 
 
+    async function safeJson(promise, fallback = {}) {
+      try {
+        const res = await promise;
+        const data = await res.json();
+        return data;
+      } catch {
+        return fallback;
+      }
+    }
+
     async function loadDashboard() {
       const [employees, accounting, payroll, chat, audit, changes] = await Promise.all([
-        portal.apiFetch('/api/employees').then(r => r.json()),
-        portal.apiFetch('/api/accounting/resumen').then(r => r.json()),
-        portal.apiFetch('/api/payroll/resumen').then(r => r.json()),
-        portal.apiFetch('/api/chat?limit=30').then(r => r.json()),
-        portal.apiFetch('/api/accounting/autonomo/verificar').then(r => r.json()),
-        portal.apiFetch('/api/system/changes?limit=8').then(r => r.json())
+        safeJson(portal.apiFetch('/api/employees'), { data: [] }),
+        safeJson(portal.apiFetch('/api/accounting/resumen'), { data: { mensual: {} } }),
+        safeJson(portal.apiFetch('/api/payroll/resumen'), { data: {} }),
+        safeJson(portal.apiFetch('/api/chat?limit=30'), { data: [] }),
+        safeJson(portal.apiFetch('/api/accounting/autonomo/verificar'), { data: { summary: {} } }),
+        safeJson(portal.apiFetch('/api/system/changes?limit=8'), { data: [] })
       ]);
 
       const activeEmployees = (employees.data || []).filter(e => e.activo !== false).length;

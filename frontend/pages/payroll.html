@@ -36,7 +36,7 @@
         <input id="mes" class="input" placeholder="Mes" />
         <input id="anio" type="number" class="input" placeholder="Año" />
         <button class="btn" onclick="simulatePayroll()">Simular nómina</button>
-        <button class="btn" onclick="savePayroll()">Guardar nómina</button>
+        <button class="btn" id="save-btn" onclick="savePayroll()">Guardar nómina</button>
       </div>
     </section>
 
@@ -61,6 +61,15 @@
 <script>
 if (!portal.guardPage()) throw new Error("auth");
 portal.applyMenuAccess();
+
+
+  function setupPayrollByRole() {
+    const user = portal.getUser();
+    if (portal.level(user.rol) <= 1) {
+      const saveBtn = document.getElementById('save-btn');
+      if (saveBtn) saveBtn.style.display = 'none';
+    }
+  }
 
   function payrollPayload(guardar) {
     return {
@@ -119,9 +128,11 @@ portal.applyMenuAccess();
     if (!result.success) return alert(result.message || 'No fue posible guardar la nómina.');
     renderSimulation(result);
     alert(result.message);
+    setupPayrollByRole();
     loadPayroll();
   }
 
+  setupPayrollByRole();
   loadPayroll();
 </script>
 </body>

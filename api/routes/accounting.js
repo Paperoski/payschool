@@ -10,13 +10,11 @@ const asientosPath = path.join(__dirname, '../../data/asientos_contables.json');
 const pucPath = path.join(__dirname, '../../data/puc_base.json');
 
 router.get('/asientos', requireMinRole('contador'), (req, res) => {
-router.get('/asientos', (req, res) => {
   const asientos = readJson(asientosPath, []).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
   return res.json({ success: true, data: asientos });
 });
 
 router.get('/resumen', requireMinRole('contador'), (req, res) => {
-router.get('/resumen', (req, res) => {
   const asientos = readJson(asientosPath, []);
   const mensual = {};
 
@@ -39,6 +37,26 @@ router.get('/autonomo/verificar', requireMinRole('contador'), (req, res) => {
   return res.json({ success: true, data: audit });
 });
 
+
+router.get('/cuentas/guia', requireMinRole('contador'), (req, res) => {
+  const puc = readJson(pucPath, []);
+  const sugeridas = [
+    { codigo: '1105', uso: 'Caja general colegio' },
+    { codigo: '1110', uso: 'Bancos y recaudos' },
+    { codigo: '1305', uso: 'Cuentas por cobrar pensiones' },
+    { codigo: '4135', uso: 'Ingresos por matrículas/pensiones' },
+    { codigo: '4145', uso: 'Otros ingresos académicos' },
+    { codigo: '5105', uso: 'Gastos de personal / nómina' },
+    { codigo: '5110', uso: 'Prestaciones y seguridad social' },
+    { codigo: '2205', uso: 'Retenciones y obligaciones por pagar' }
+  ].map((sug) => {
+    const found = puc.find((p) => String(p.codigo) === sug.codigo);
+    return { ...sug, nombre: found?.nombre || 'Cuenta de referencia' };
+  });
+
+  return res.json({ success: true, data: sugeridas });
+});
+
 router.post('/asiento', requireMinRole('contador'), (req, res) => {
   const { fecha, descripcion, comprobante, movimientos } = req.body;
 
@@ -59,7 +77,7 @@ router.post('/asiento', requireMinRole('contador'), (req, res) => {
 
   const asientos = readJson(asientosPath, []);
   const nuevoAsiento = {
-    id: nextId(asientos), fecha: fecha || new Date().toISOString().split('T')[0], descripcion: descripcion || 'Asiento contable', comprobante: comprobante || 'General', movimientos,
+    id: nextId(asientos), fecha: fecha || new Date().toISOString().split('T')[0], descripcion: descripcion || 'Asiento contable', comprobante: comprobante || 'General', movimientos: check.normalized_movements,
     total: check.total_debito, estado: 'Asentado', created_at: new Date().toISOString()
   };
 

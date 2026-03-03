@@ -31,6 +31,17 @@
     </header>
 
     <section class="card" style="margin-bottom:16px;">
+      <h3>Guía rápida de cuentas (institución educativa privada)</h3>
+      <p class="subtitle">Estas son cuentas comunes. Puedes usar subcuentas (ej: 110505) y el sistema las normaliza al catálogo base.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Código</th><th>Nombre</th><th>Uso recomendado</th></tr></thead>
+          <tbody id="quick-accounts"><tr><td colspan="3">Cargando guía...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px;">
       <h3>Registrar asiento contable</h3>
       <div class="form-grid">
         <input id="fecha" type="date" class="input" />
@@ -94,6 +105,16 @@ function collectMovements() {
   })).filter((m) => m.cuenta_puc && (m.debito > 0 || m.credito > 0));
 }
 
+
+async function loadQuickAccounts() {
+  const response = await portal.apiFetch('/api/accounting/cuentas/guia');
+  const result = await response.json();
+  const rows = result.data || [];
+  document.getElementById('quick-accounts').innerHTML = rows.length
+    ? rows.map((r) => `<tr><td>${r.codigo}</td><td>${r.nombre}</td><td>${r.uso}</td></tr>`).join('')
+    : '<tr><td colspan="3">Sin guía disponible.</td></tr>';
+}
+
 async function loadAccounting() {
   const [summaryRes, entriesRes, auditRes] = await Promise.all([
     portal.apiFetch('/api/accounting/resumen').then(r => r.json()),
@@ -145,6 +166,9 @@ async function createEntry() {
 
   if (payload.movimientos.length < 2) return alert('Debes ingresar al menos 2 movimientos.');
 
+  const invalidDual = payload.movimientos.find((m) => m.debito > 0 && m.credito > 0);
+  if (invalidDual) return alert('Cada fila debe tener solo débito o solo crédito, no ambos.');
+
   const response = await portal.apiFetch('/api/accounting/asiento', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -158,11 +182,13 @@ async function createEntry() {
   document.getElementById('movements-body').innerHTML = '';
   addMovementRow();
   addMovementRow();
+  loadQuickAccounts();
   loadAccounting();
 }
 
 addMovementRow();
 addMovementRow();
+loadQuickAccounts();
 loadAccounting();
 </script>
 </body>

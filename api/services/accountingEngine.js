@@ -6,25 +6,39 @@ function isNumericAccountCode(code) {
   return /^\d{4,10}$/.test(normalizeCode(code));
 }
 
-function accountExists(code, pucCatalog) {
-  const normalized = normalizeCode(code);
-  return pucCatalog.some((account) => normalizeCode(account.codigo) === normalized);
+function resolveAccountCode(inputCode, pucCatalog) {
+  const normalized = normalizeCode(inputCode);
+  if (!normalized) return null;
+
+  const exact = pucCatalog.find((account) => normalizeCode(account.codigo) === normalized);
+  if (exact) return normalizeCode(exact.codigo);
+
+  // Permite subcuentas digitadas por el usuario (ej: 110505 -> 1105)
+  for (let len = normalized.length - 1; len >= 4; len -= 1) {
+    const prefix = normalized.slice(0, len);
+    const found = pucCatalog.find((account) => normalizeCode(account.codigo) === prefix);
+    if (found) return normalizeCode(found.codigo);
+  }
+
+  return null;
 }
 
 function validateMovement(movement, pucCatalog) {
-  const code = normalizeCode(movement.cuenta_puc || movement.cuenta_codigo);
+  const rawCode = normalizeCode(movement.cuenta_puc || movement.cuenta_codigo);
+  const resolvedCode = resolveAccountCode(rawCode, pucCatalog);
   const debit = Number(movement.debito) || 0;
   const credit = Number(movement.credito) || 0;
   const hasValidSide = (debit > 0 && credit === 0) || (credit > 0 && debit === 0);
 
   const issues = [];
-  if (!isNumericAccountCode(code)) issues.push('Cuenta no numérica o formato inválido');
-  if (!accountExists(code, pucCatalog)) issues.push('Cuenta no existe en catálogo PUC');
+  if (!isNumericAccountCode(rawCode)) issues.push('Cuenta no numérica o formato inválido');
+  if (!resolvedCode) issues.push('Cuenta no existe en catálogo PUC');
   if (!hasValidSide) issues.push('Movimiento inválido: debe tener débito o crédito, no ambos');
 
   return {
     isValid: issues.length === 0,
-    code,
+    code: resolvedCode || rawCode,
+    raw_code: rawCode,
     debit,
     credit,
     issues
@@ -33,10 +47,7 @@ function validateMovement(movement, pucCatalog) {
 
 function validateEntry(entry, pucCatalog) {
   const movements = Array.isArray(entry.movimientos) ? entry.movimientos : [];
-  const checked = movements.map((movement, index) => ({
-    index,
-    ...validateMovement(movement, pucCatalog)
-  }));
+  const checked = movements.map((movement, index) => ({ index, ...validateMovement(movement, pucCatalog) }));
 
   const debit = checked.reduce((acc, m) => acc + m.debit, 0);
   const credit = checked.reduce((acc, m) => acc + m.credit, 0);
@@ -47,11 +58,16 @@ function validateEntry(entry, pucCatalog) {
     entry_id: entry.id,
     comprobante: entry.comprobante || null,
     fecha: entry.fecha || null,
-    total_debito: debit,
-    total_credito: credit,
+    total_debito: Number(debit.toFixed(2)),
+    total_credito: Number(credit.toFixed(2)),
     is_balanced: isBalanced,
     invalid_movement_count: invalidMovements.length,
-    invalid_movements: invalidMovements
+    invalid_movements: invalidMovements,
+    normalized_movements: checked.map((m) => ({
+      cuenta_puc: m.code,
+      debito: Number(m.debit.toFixed(2)),
+      credito: Number(m.credit.toFixed(2))
+    }))
   };
 }
 
@@ -74,5 +90,6 @@ function autonomousAccountingAudit(entries, pucCatalog) {
 
 module.exports = {
   autonomousAccountingAudit,
-  validateEntry
+  validateEntry,
+  resolveAccountCode
 };

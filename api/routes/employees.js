@@ -4,6 +4,8 @@ const { readJson, writeJson, nextId } = require('../utils/jsonStore');
 
 const router = express.Router();
 const empleadosPath = path.join(__dirname, '../../data/empleados.json');
+const usersPath = path.join(__dirname, '../../data/users.json');
+const nominasPath = path.join(__dirname, '../../data/nominas.json');
 
 router.get('/', (req, res) => {
   const data = readJson(empleadosPath, []);
@@ -46,6 +48,7 @@ router.put('/:id', (req, res) => {
   empleados[idx] = {
     ...empleados[idx],
     ...req.body,
+    email: req.body.email !== undefined ? String(req.body.email || '').toLowerCase() : empleados[idx].email,
     salario_base: req.body.salario_base !== undefined ? Number(req.body.salario_base) : empleados[idx].salario_base,
     updated_at: new Date().toISOString()
   };
@@ -59,10 +62,23 @@ router.delete('/:id', (req, res) => {
   const idx = empleados.findIndex((emp) => Number(emp.id) === Number(req.params.id));
   if (idx === -1) return res.status(404).json({ success: false, message: 'Empleado no encontrado.' });
 
-  empleados[idx].activo = false;
-  empleados[idx].fecha_baja = new Date().toISOString();
+  const removed = empleados.splice(idx, 1)[0];
   writeJson(empleadosPath, empleados);
-  return res.json({ success: true, message: 'Empleado marcado como inactivo.', data: empleados[idx] });
+
+  const removedEmail = String(removed.email || '').toLowerCase();
+  if (removedEmail) {
+    const users = readJson(usersPath, []);
+    writeJson(usersPath, users.filter((u) => String(u.email || '').toLowerCase() !== removedEmail));
+  }
+
+  const nominas = readJson(nominasPath, []);
+  const syncedNominas = nominas.map((n) => ({
+    ...n,
+    detalles: (n.detalles || []).filter((d) => d.id_empleado !== removed.id && String(d.empleado_email || '').toLowerCase() !== removedEmail)
+  }));
+  writeJson(nominasPath, syncedNominas);
+
+  return res.json({ success: true, message: 'Empleado eliminado definitivamente y nómina sincronizada.', data: { id: removed.id } });
 });
 
 module.exports = router;
