@@ -1,84 +1,96 @@
 const express = require('express');
-const router = express.Router();
-const fs = require('fs');
 const path = require('path');
+const { readJson, writeJson, nextId } = require('../utils/jsonStore');
+const { getRequestUser } = require('../utils/accessControl');
+
+const router = express.Router();
 
 const empleadosPath = path.join(__dirname, '../../data/empleados.json');
 const nominasPath = path.join(__dirname, '../../data/nominas.json');
 
-// Constantes 2026 (Colombia)
-const UVT_2026 = 52374; 
-const SMLV_2026 = 1462000; // Ajustar según el decreto exacto vigente
-const AUXILIO_TRANSPORTE_2026 = 162000; 
+const UVT_2026 = 52374;
+const SMLV_2026 = 1462000;
+const AUXILIO_TRANSPORTE_2026 = 162000;
 
-// Calcular y generar nómina
+function calculatePayrollDetail(emp) {
+  const salarioBase = Number(emp.salario_base) || 0;
+  const diasTrabajados = Number(emp.dias_trabajados) || 30;
+  const sueldoDevengado = (salarioBase / 30) * diasTrabajados;
+  const auxilioTransporte = salarioBase <= SMLV_2026 * 2 ? (AUXILIO_TRANSPORTE_2026 / 30) * diasTrabajados : 0;
+  const totalDevengado = sueldoDevengado + auxilioTransporte;
+  const salud = sueldoDevengado * 0.04;
+  const pension = sueldoDevengado * 0.04;
+  const baseReteFuente = sueldoDevengado - salud - pension;
+  const rentaExenta = baseReteFuente * 0.25;
+  const baseUVT = (baseReteFuente - rentaExenta) / UVT_2026;
+  let retencion = 0;
+  if (baseUVT > 95 && baseUVT <= 150) retencion = ((baseUVT - 95) * 0.19) * UVT_2026;
+  if (baseUVT > 150 && baseUVT <= 360) retencion = (((baseUVT - 150) * 0.28) + 10) * UVT_2026;
+  const totalDeducido = salud + pension + retencion;
+
+  return {
+    id_empleado: emp.id,
+    empleado_email: emp.email || null,
+    nombre: `${emp.nombre}${emp.apellido ? ` ${emp.apellido}` : ''}`,
+    cargo: emp.cargo || 'Sin cargo',
+    totalDevengado,
+    deducciones: { salud, pension, retencion_fuente: Math.round(retencion) },
+    totalDeducido,
+    netoPagar: totalDevengado - totalDeducido
+  };
+}
+
+function filterPayrollForUser(nominas, user) {
+  if (user.level > 1) return nominas;
+  return nominas.map((n) => ({ ...n, detalles: (n.detalles || []).filter((d) => d.empleado_email && d.empleado_email.toLowerCase() === user.email) }))
+    .filter((n) => (n.detalles || []).length > 0);
+}
+
+router.get('/historial', (req, res) => {
+  const user = getRequestUser(req);
+  const nominas = readJson(nominasPath, []).sort((a, b) => new Date(b.fecha_generacion) - new Date(a.fecha_generacion));
+  return res.json({ success: true, data: filterPayrollForUser(nominas, user) });
+});
+
+router.get('/resumen', (req, res) => {
+  const user = getRequestUser(req);
+  const nominas = filterPayrollForUser(readJson(nominasPath, []), user);
+  const ultima = nominas[nominas.length - 1];
+  const neto = (ultima?.detalles || []).reduce((acc, item) => acc + (Number(item.netoPagar) || 0), 0);
+  return res.json({ success: true, data: { nominas_generadas: nominas.length, empleados_liquidados: ultima?.detalles?.length || 0, neto_ultima_nomina: neto, ultima_fecha_generacion: ultima?.fecha_generacion || null } });
+});
+
 router.post('/calcular', (req, res) => {
-    try {
-        const { periodo, mes, anio } = req.body;
-        const empleados = JSON.parse(fs.readFileSync(empleadosPath, 'utf8'));
-        const nominas = JSON.parse(fs.readFileSync(nominasPath, 'utf8'));
+  const user = getRequestUser(req);
+  const { periodo, mes, anio, guardar = true } = req.body;
 
-        const nuevaNomina = empleados.map(emp => {
-            const salarioBase = emp.salario_base;
-            const diasTrabajados = emp.dias_trabajados || 30; 
-            
-            // Sueldo proporcional a los días laborados
-            const sueldoDevengado = (salarioBase / 30) * diasTrabajados;
-            
-            // Auxilio de transporte (Solo para quienes ganan hasta 2 SMLV)
-            let auxilioTransporte = 0;
-            if (salarioBase <= (SMLV_2026 * 2)) {
-                auxilioTransporte = (AUXILIO_TRANSPORTE_2026 / 30) * diasTrabajados;
-            }
+  if (user.level <= 1 && guardar) {
+    return res.status(403).json({ success: false, message: 'Solo administración puede guardar nómina general.' });
+  }
 
-            const totalDevengado = sueldoDevengado + auxilioTransporte;
+  const empleados = readJson(empleadosPath, []).filter((e) => e.activo !== false);
+  const nominas = readJson(nominasPath, []);
+  const detalles = empleados.map(calculatePayrollDetail);
 
-            // Deducciones de Ley (Salud 4%, Pensión 4% sobre devengado sin transporte)
-            const salud = sueldoDevengado * 0.04;
-            const pension = sueldoDevengado * 0.04;
+  const resultDetalles = user.level <= 1
+    ? detalles.filter((d) => d.empleado_email && d.empleado_email.toLowerCase() === user.email)
+    : detalles;
 
-            // Retención en la fuente usando la UVT 2026
-            let baseReteFuente = sueldoDevengado - salud - pension;
-            let rentaExenta = baseReteFuente * 0.25;
-            let baseGravable = baseReteFuente - rentaExenta;
-            
-            let baseUVT = baseGravable / UVT_2026;
-            let retencion = 0;
+  const registroNomina = {
+    id: nextId(nominas),
+    periodo: periodo || 'Mensual',
+    mes: mes || new Date().toLocaleString('es-CO', { month: 'long' }),
+    anio: Number(anio) || new Date().getFullYear(),
+    fecha_generacion: new Date().toISOString(),
+    detalles: resultDetalles
+  };
 
-            // Aplicación simplificada de la tabla del Art. 383 ET
-            if (baseUVT > 95 && baseUVT <= 150) {
-                retencion = ((baseUVT - 95) * 0.19) * UVT_2026;
-            } else if (baseUVT > 150 && baseUVT <= 360) {
-                retencion = (((baseUVT - 150) * 0.28) + 10) * UVT_2026;
-            }
+  if (guardar) {
+    nominas.push(registroNomina);
+    writeJson(nominasPath, nominas);
+  }
 
-            const totalDeducido = salud + pension + retencion;
-
-            return {
-                id_empleado: emp.id,
-                nombre: emp.nombre,
-                cargo: emp.cargo, // Ej: "Profesor Matemáticas"
-                totalDevengado,
-                deducciones: { salud, pension, retencion_fuente: Math.round(retencion) },
-                totalDeducido,
-                netoPagar: totalDevengado - totalDeducido
-            };
-        });
-
-        const registroNomina = {
-            id: nominas.length > 0 ? Math.max(...nominas.map(n => n.id)) + 1 : 1,
-            periodo, mes, anio,
-            fecha_generacion: new Date().toISOString(),
-            detalles: nuevaNomina
-        };
-
-        nominas.push(registroNomina);
-        fs.writeFileSync(nominasPath, JSON.stringify(nominas, null, 2));
-
-        res.status(201).json({ success: true, message: 'Nómina calculada exitosamente', data: registroNomina });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error al calcular la nómina', error: error.message });
-    }
+  return res.status(201).json({ success: true, message: guardar ? 'Nómina calculada y almacenada exitosamente.' : 'Nómina calculada en modo simulación.', data: registroNomina });
 });
 
 module.exports = router;
