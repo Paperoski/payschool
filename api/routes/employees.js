@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { nombre, apellido, cedula, cargo, salario_base } = req.body;
+  const { nombre, apellido, cedula, cargo, salario_base, email } = req.body;
   if (!nombre || !cedula || !cargo || !salario_base) {
     return res.status(400).json({ success: false, message: 'Campos obligatorios: nombre, cedula, cargo, salario_base.' });
   }
@@ -26,6 +26,7 @@ router.post('/', (req, res) => {
     nombre,
     apellido: apellido || '',
     cedula,
+    email: (email || '').toLowerCase(),
     cargo,
     salario_base: Number(salario_base),
     activo: true,

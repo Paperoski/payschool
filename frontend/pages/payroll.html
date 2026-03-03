@@ -6,11 +6,12 @@
   <title>Gestión de Nómina | PaySchool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/portal.js"></script>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <div class="brand">🎓 PaySchool ERP</div>
+    <div class="brand">🏫 Colegio Boston</div>
     <nav class="nav">
       <a href="/dashboard.html">Dashboard</a>
       <a href="/employees.html">Empleados</a>
@@ -58,6 +59,9 @@
 </div>
 
 <script>
+if (!portal.guardPage()) throw new Error("auth");
+portal.applyMenuAccess();
+
   function payrollPayload(guardar) {
     return {
       periodo: document.getElementById('periodo').value.trim() || 'Mensual',
@@ -83,7 +87,7 @@
   }
 
   async function loadPayroll() {
-    const response = await fetch('/api/payroll/historial');
+    const response = await portal.apiFetch('/api/payroll/historial');
     const result = await response.json();
 
     document.getElementById('payroll-table').innerHTML = (result.data || []).length
@@ -95,7 +99,7 @@
   }
 
   async function simulatePayroll() {
-    const response = await fetch('/api/payroll/calcular', {
+    const response = await portal.apiFetch('/api/payroll/calcular', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payrollPayload(false))
@@ -106,7 +110,7 @@
   }
 
   async function savePayroll() {
-    const response = await fetch('/api/payroll/calcular', {
+    const response = await portal.apiFetch('/api/payroll/calcular', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payrollPayload(true))

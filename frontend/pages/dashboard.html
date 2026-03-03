@@ -8,11 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/portal.js"></script>
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand">🎓 PaySchool ERP</div>
+      <div class="brand">🏫 Colegio Boston</div>
       <nav class="nav">
         <a class="active" href="/dashboard.html">Dashboard</a>
         <a href="/employees.html">Empleados</a>
@@ -71,6 +72,9 @@
   </div>
 
   <script>
+if (!portal.guardPage()) throw new Error("auth");
+portal.applyMenuAccess();
+
     let monthlyChart;
     function setupChatAuthor() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -81,12 +85,12 @@
 
     async function loadDashboard() {
       const [employees, accounting, payroll, chat, audit, changes] = await Promise.all([
-        fetch('/api/employees').then(r => r.json()),
-        fetch('/api/accounting/resumen').then(r => r.json()),
-        fetch('/api/payroll/resumen').then(r => r.json()),
-        fetch('/api/chat?limit=30').then(r => r.json()),
-        fetch('/api/accounting/autonomo/verificar').then(r => r.json()),
-        fetch('/api/system/changes?limit=8').then(r => r.json())
+        portal.apiFetch('/api/employees').then(r => r.json()),
+        portal.apiFetch('/api/accounting/resumen').then(r => r.json()),
+        portal.apiFetch('/api/payroll/resumen').then(r => r.json()),
+        portal.apiFetch('/api/chat?limit=30').then(r => r.json()),
+        portal.apiFetch('/api/accounting/autonomo/verificar').then(r => r.json()),
+        portal.apiFetch('/api/system/changes?limit=8').then(r => r.json())
       ]);
 
       const activeEmployees = (employees.data || []).filter(e => e.activo !== false).length;
@@ -168,7 +172,7 @@
       const mensaje = document.getElementById('chat-message').value.trim();
       if (!autor || !mensaje) return;
 
-      const response = await fetch('/api/chat', {
+      const response = await portal.apiFetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ autor, mensaje, canal: 'general' })

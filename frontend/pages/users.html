@@ -6,11 +6,12 @@
   <title>Administración de Usuarios | PaySchool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/portal.js"></script>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <div class="brand">🎓 PaySchool ERP</div>
+    <div class="brand">🏫 Colegio Boston</div>
     <nav class="nav">
       <a href="/dashboard.html">Dashboard</a>
       <a href="/employees.html">Empleados</a>
@@ -55,8 +56,11 @@
 </div>
 
 <script>
+if (!portal.guardPage("admin")) throw new Error("auth");
+portal.applyMenuAccess();
+
   async function loadUsers() {
-    const response = await fetch('/api/users');
+    const response = await portal.apiFetch('/api/users');
     const result = await response.json();
     const users = result.data || [];
 
@@ -86,7 +90,7 @@
       rol: document.getElementById('rol').value
     };
 
-    const response = await fetch('/api/users', {
+    const response = await portal.apiFetch('/api/users', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
     });
     const result = await response.json();
@@ -97,7 +101,7 @@
   }
 
   async function toggleUser(id, newStatus) {
-    const response = await fetch(`/api/users/${id}/status`, {
+    const response = await portal.apiFetch(`/api/users/${id}/status`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo: newStatus })
     });
     const result = await response.json();
@@ -107,7 +111,7 @@
 
   async function deleteUser(id) {
     if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
-    const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    const response = await portal.apiFetch(`/api/users/${id}`, { method: 'DELETE' });
     const result = await response.json();
     if (!result.success) return alert(result.message || 'No se pudo eliminar.');
     loadUsers();

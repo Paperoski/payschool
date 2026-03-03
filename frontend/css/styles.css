@@ -1,15 +1,15 @@
 :root {
-  --bg: #f2f5fa;
+  --bg: #f4faf6;
   --surface: #ffffff;
-  --surface-2: #f8fbff;
+  --surface-2: #f5fff8;
   --text: #0f172a;
   --muted: #64748b;
-  --primary: #1d4ed8;
-  --primary-dark: #1e3a8a;
+  --primary: #15803d;
+  --primary-dark: #166534;
   --success: #059669;
   --warning: #d97706;
   --danger: #dc2626;
-  --border: #e2e8f0;
+  --border: #d1e7d7;
   --shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
 }
 
@@ -28,7 +28,7 @@ body {
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #0b1f4a 0%, #0f172a 100%);
+  background: linear-gradient(180deg, #166534 0%, #14532d 100%);
   color: white;
   padding: 24px 18px;
   position: sticky;
@@ -51,7 +51,7 @@ body {
 
 .nav a {
   text-decoration: none;
-  color: #dbeafe;
+  color: #dcfce7;
   padding: 11px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -76,20 +76,6 @@ body {
   align-items: flex-start;
   gap: 16px;
 }
-.grid.kpi { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-.grid.two { grid-template-columns: 1.3fr 1fr; }
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  padding: 18px;
-}
-
-.card h3 { margin-top: 0; }
-.metric-label { color: var(--muted); font-size: 0.88rem; }
-.metric-value { font-size: 1.9rem; font-weight: 700; margin-top: 6px; }
 
 .title { margin: 0; font-size: 1.8rem; }
 .subtitle { margin: 6px 0 0; color: var(--muted); }
@@ -169,7 +155,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 0.74rem; letter-
 .msg {
   padding: 8px 10px;
   background: white;
-  border: 1px solid #dbeafe;
+  border: 1px solid #bbf7d0;
   border-radius: 10px;
 }
 .msg small { color: var(--muted); }

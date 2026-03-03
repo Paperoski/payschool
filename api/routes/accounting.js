@@ -2,17 +2,20 @@ const express = require('express');
 const path = require('path');
 const { readJson, writeJson, nextId } = require('../utils/jsonStore');
 const { autonomousAccountingAudit, validateEntry } = require('../services/accountingEngine');
+const { requireMinRole } = require('../utils/accessControl');
 
 const router = express.Router();
 
 const asientosPath = path.join(__dirname, '../../data/asientos_contables.json');
 const pucPath = path.join(__dirname, '../../data/puc_base.json');
 
+router.get('/asientos', requireMinRole('contador'), (req, res) => {
 router.get('/asientos', (req, res) => {
   const asientos = readJson(asientosPath, []).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
   return res.json({ success: true, data: asientos });
 });
 
+router.get('/resumen', requireMinRole('contador'), (req, res) => {
 router.get('/resumen', (req, res) => {
   const asientos = readJson(asientosPath, []);
   const mensual = {};
@@ -26,25 +29,17 @@ router.get('/resumen', (req, res) => {
   const totalDebitos = asientos.reduce((acc, entry) => acc + (Number(entry.total) || 0), 0);
   const totalMovimientos = asientos.reduce((acc, entry) => acc + (entry.movimientos?.length || 0), 0);
 
-  return res.json({
-    success: true,
-    data: {
-      total_asientos: asientos.length,
-      total_movimientos: totalMovimientos,
-      total_debitos: totalDebitos,
-      mensual
-    }
-  });
+  return res.json({ success: true, data: { total_asientos: asientos.length, total_movimientos: totalMovimientos, total_debitos: totalDebitos, mensual } });
 });
 
-router.get('/autonomo/verificar', (req, res) => {
+router.get('/autonomo/verificar', requireMinRole('contador'), (req, res) => {
   const asientos = readJson(asientosPath, []);
   const puc = readJson(pucPath, []);
   const audit = autonomousAccountingAudit(asientos, puc);
   return res.json({ success: true, data: audit });
 });
 
-router.post('/asiento', (req, res) => {
+router.post('/asiento', requireMinRole('contador'), (req, res) => {
   const { fecha, descripcion, comprobante, movimientos } = req.body;
 
   if (!Array.isArray(movimientos) || movimientos.length < 2) {
@@ -55,30 +50,17 @@ router.post('/asiento', (req, res) => {
   const check = validateEntry({ id: 0, fecha, comprobante, movimientos }, puc);
 
   if (!check.is_balanced) {
-    return res.status(400).json({
-      success: false,
-      message: `Partida doble inválida: débito ${check.total_debito} vs crédito ${check.total_credito}.`
-    });
+    return res.status(400).json({ success: false, message: `Partida doble inválida: débito ${check.total_debito} vs crédito ${check.total_credito}.` });
   }
 
   if (check.invalid_movement_count > 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'El asiento contiene movimientos inválidos o cuentas no existentes.',
-      invalid_movements: check.invalid_movements
-    });
+    return res.status(400).json({ success: false, message: 'El asiento contiene movimientos inválidos o cuentas no existentes.', invalid_movements: check.invalid_movements });
   }
 
   const asientos = readJson(asientosPath, []);
   const nuevoAsiento = {
-    id: nextId(asientos),
-    fecha: fecha || new Date().toISOString().split('T')[0],
-    descripcion: descripcion || 'Asiento contable',
-    comprobante: comprobante || 'General',
-    movimientos,
-    total: check.total_debito,
-    estado: 'Asentado',
-    created_at: new Date().toISOString()
+    id: nextId(asientos), fecha: fecha || new Date().toISOString().split('T')[0], descripcion: descripcion || 'Asiento contable', comprobante: comprobante || 'General', movimientos,
+    total: check.total_debito, estado: 'Asentado', created_at: new Date().toISOString()
   };
 
   asientos.push(nuevoAsiento);

@@ -7,11 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/portal.js"></script>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <div class="brand">🎓 PaySchool ERP</div>
+    <div class="brand">🏫 Colegio Boston</div>
     <nav class="nav">
       <a href="/dashboard.html">Dashboard</a>
       <a href="/employees.html">Empleados</a>
@@ -68,6 +69,9 @@
 </div>
 
 <script>
+if (!portal.guardPage("contador")) throw new Error("auth");
+portal.applyMenuAccess();
+
 let chart;
 
 function addMovementRow(data = {}) {
@@ -92,9 +96,9 @@ function collectMovements() {
 
 async function loadAccounting() {
   const [summaryRes, entriesRes, auditRes] = await Promise.all([
-    fetch('/api/accounting/resumen').then(r => r.json()),
-    fetch('/api/accounting/asientos').then(r => r.json()),
-    fetch('/api/accounting/autonomo/verificar').then(r => r.json())
+    portal.apiFetch('/api/accounting/resumen').then(r => r.json()),
+    portal.apiFetch('/api/accounting/asientos').then(r => r.json()),
+    portal.apiFetch('/api/accounting/autonomo/verificar').then(r => r.json())
   ]);
 
   const summary = summaryRes.data || {};
@@ -141,7 +145,7 @@ async function createEntry() {
 
   if (payload.movimientos.length < 2) return alert('Debes ingresar al menos 2 movimientos.');
 
-  const response = await fetch('/api/accounting/asiento', {
+  const response = await portal.apiFetch('/api/accounting/asiento', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
