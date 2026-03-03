@@ -1,310 +1,116 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Usuarios — PaySchool</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administración de Usuarios | PaySchool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
 </head>
 <body>
-<div class="app-layout">
+<div class="layout">
   <aside class="sidebar">
-    <div class="sidebar-logo"><a href="dashboard.html" class="logo-mark"><div class="logo-icon">🎓</div><div class="logo-text"><span class="logo-pay">Pay</span><span class="logo-school">School</span></div></a></div>
-    <div class="sidebar-user"><div class="user-avatar" id="user-avatar">SA</div><div class="user-info"><div class="user-name" id="user-name">Cargando...</div><div class="user-role" id="user-role">—</div></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Principal</div>
-      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
-      <a href="employees.html" class="nav-item"><span class="nav-icon">👥</span>Empleados</a>
-      <a href="payroll.html" class="nav-item"><span class="nav-icon">💰</span>Nómina</a>
-      <a href="accounting.html" class="nav-item"><span class="nav-icon">📒</span>Libros Contables</a>
-      <a href="users.html" class="nav-item active"><span class="nav-icon">🔑</span>Usuarios</a>
-      <div class="nav-section-label" style="margin-top:12px">Sistema</div>
-      <a href="logs.html" class="nav-item"><span class="nav-icon">📋</span>Bitácora</a>
+    <div class="brand">🎓 PaySchool ERP</div>
+    <nav class="nav">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/employees.html">Empleados</a>
+      <a href="/payroll.html">Nómina</a>
+      <a href="/accounting.html">Contabilidad</a>
+      <a class="active" href="/users.html">Usuarios</a>
     </nav>
-    <div class="sidebar-footer"><button class="nav-item" id="logout-btn" style="width:100%"><span class="nav-icon">🚪</span>Cerrar Sesión</button></div>
   </aside>
 
-  <div class="main-content">
-    <header class="topbar">
-      <h1 class="topbar-title">Gestión de Usuarios</h1>
-      <div class="topbar-actions">
-        <button class="topbar-btn" id="notif-btn">🔔<span class="notif-dot" id="notif-dot" style="display:none"></span></button>
+  <main class="main">
+    <header class="header">
+      <div>
+        <h1 class="title">Usuarios y control de acceso</h1>
+        <p class="subtitle">Crear, activar/desactivar y eliminar usuarios administrativos.</p>
       </div>
     </header>
-    <div class="notif-panel" id="notif-panel">
-      <div class="notif-header"><span class="notif-title">Notificaciones</span></div>
-      <div id="notif-list"><div class="loading"><div class="spinner"></div></div></div>
-    </div>
 
-    <div class="page-content">
-      <div class="page-header">
-        <div class="page-header-left">
-          <h1>Usuarios del Sistema</h1>
-          <p>Controla el acceso y roles de cada usuario</p>
-        </div>
-        <button class="btn btn-primary" onclick="openCreate()">+ Nuevo Usuario</button>
-      </div>
-
-      <!-- Role summary cards -->
-      <div id="role-cards" style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap"></div>
-
-      <!-- Users table -->
-      <div class="card" style="padding:0">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <h3 class="card-title">🔑 Lista de Usuarios</h3>
-          <div class="search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Buscar usuario..." id="search-input" oninput="renderUsers()">
-          </div>
-        </div>
-        <div id="loading-users" class="loading"><div class="spinner"></div></div>
-        <div class="table-container" id="users-table" style="display:none">
-          <table>
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Último Acceso</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="users-tbody"></tbody>
-          </table>
-        </div>
-        <div id="users-empty" class="empty-state hidden">
-          <div class="empty-icon">🔑</div>
-          <h3>Sin usuarios</h3>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Crear/Editar -->
-<div class="modal-overlay" id="user-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 class="modal-title" id="user-modal-title">Nuevo Usuario</h2>
-      <button class="modal-close" onclick="modal.close('user-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="u-id">
+    <section class="card" style="margin-bottom:16px;">
+      <h3>Crear usuario</h3>
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Nombre *</label>
-          <input class="form-control" id="u-nombre" placeholder="Juan">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Apellido *</label>
-          <input class="form-control" id="u-apellido" placeholder="Pérez">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email *</label>
-          <input type="email" class="form-control" id="u-email" placeholder="juan@email.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Contraseña *</label>
-          <input type="password" class="form-control" id="u-password" placeholder="Mínimo 8 caracteres">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Rol *</label>
-          <select class="form-control" id="u-rol_id">
-            <option value="">— Seleccionar rol —</option>
-          </select>
-        </div>
-        <div class="form-group" id="u-activo-group" style="display:none">
-          <label class="form-label">Estado</label>
-          <select class="form-control" id="u-activo">
-            <option value="true">Activo</option>
-            <option value="false">Inactivo</option>
-          </select>
-        </div>
+        <input id="nombre" class="input" placeholder="Nombre completo" />
+        <input id="email" class="input" type="email" placeholder="Correo" />
+        <input id="password" class="input" type="password" placeholder="Contraseña" />
+        <select id="rol">
+          <option value="superadmin">Superadmin</option>
+          <option value="admin">Admin</option>
+          <option value="contador">Contador</option>
+          <option value="rectoria">Rectoría</option>
+        </select>
+        <button class="btn" onclick="createUser()">Crear usuario</button>
       </div>
+    </section>
 
-      <!-- Role descriptions -->
-      <div class="card" style="background:rgba(99,179,237,0.04);border-color:rgba(99,179,237,0.15);padding:16px">
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">
-          <strong style="color:var(--accent-blue)">Roles disponibles:</strong><br>
-          🔴 <strong>superadmin</strong> — Acceso total al sistema<br>
-          🟡 <strong>admin</strong> — Nómina, empleados, reportes y usuarios<br>
-          🔵 <strong>contador</strong> — Nómina, reportes y libros contables<br>
-          ⚪ <strong>empleado</strong> — Solo visualización de sus recibos
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="modal.close('user-modal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveUser()" id="save-user-btn">💾 Guardar</button>
-    </div>
-  </div>
+    <section class="card table-wrap">
+      <h3>Usuarios del sistema</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Creación</th><th>Acciones</th></tr></thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </section>
+  </main>
 </div>
 
-<div id="toast-container" class="toast-container"></div>
-<script src="../js/app.js"></script>
 <script>
-  if (!api.requireAuth()) throw '';
-
-  let users = [];
-  let roles = [];
-
   async function loadUsers() {
-    document.getElementById('loading-users').style.display = 'flex';
-    document.getElementById('users-table').style.display = 'none';
+    const response = await fetch('/api/users');
+    const result = await response.json();
+    const users = result.data || [];
 
-    const [uData, rData] = await Promise.all([
-      api.get('/usuarios'),
-      api.get('/usuarios/roles/list')
-    ]);
-
-    users = uData?.data || [];
-    roles = rData?.data || [];
-
-    // Populate role select
-    const rSelect = document.getElementById('u-rol_id');
-    rSelect.innerHTML = '<option value="">— Seleccionar rol —</option>';
-    roles.forEach(r => rSelect.innerHTML += `<option value="${r.id}">${r.nombre} — ${r.descripcion}</option>`);
-
-    // Role summary cards
-    const roleCounts = {};
-    users.forEach(u => roleCounts[u.rol] = (roleCounts[u.rol] || 0) + 1);
-    const roleColors = { superadmin: 'red', admin: 'gold', contador: 'blue', empleado: 'purple' };
-    const roleIcons = { superadmin: '🔴', admin: '🟡', contador: '🔵', empleado: '⚪' };
-    document.getElementById('role-cards').innerHTML = roles.map(r => `
-      <div class="stat-card" style="flex:1;min-width:160px;cursor:default">
-        <div class="stat-icon ${roleColors[r.nombre] || 'blue'}">${roleIcons[r.nombre] || '👤'}</div>
-        <div class="stat-info">
-          <div class="stat-label">${r.nombre}</div>
-          <div class="stat-value">${roleCounts[r.nombre] || 0}</div>
-          <div class="stat-sub">usuarios</div>
-        </div>
-      </div>
-    `).join('');
-
-    document.getElementById('loading-users').style.display = 'none';
-    renderUsers();
-    loadNotifications();
+    document.getElementById('users-body').innerHTML = users.length
+      ? users.map((user) => `
+        <tr>
+          <td>${user.id}</td>
+          <td>${user.nombre}</td>
+          <td>${user.email}</td>
+          <td>${user.rol}</td>
+          <td>${user.activo === false ? '<span class="pill alert">Inactivo</span>' : '<span class="pill ok">Activo</span>'}</td>
+          <td>${new Date(user.fecha_creacion).toLocaleDateString('es-CO')}</td>
+          <td>
+            <button class="btn" onclick="toggleUser(${user.id}, ${user.activo === false})">${user.activo === false ? 'Activar' : 'Inactivar'}</button>
+            <button class="btn btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
+          </td>
+        </tr>
+      `).join('')
+      : '<tr><td colspan="7">No hay usuarios registrados.</td></tr>';
   }
 
-  function renderUsers() {
-    const search = document.getElementById('search-input').value.toLowerCase();
-    const filtered = users.filter(u =>
-      `${u.nombre} ${u.apellido} ${u.email}`.toLowerCase().includes(search)
-    );
-
-    if (!filtered.length) {
-      document.getElementById('users-empty').classList.remove('hidden');
-      document.getElementById('users-table').style.display = 'none';
-      return;
-    }
-
-    document.getElementById('users-empty').classList.add('hidden');
-    document.getElementById('users-tbody').innerHTML = filtered.map(u => `
-      <tr>
-        <td>
-          <div class="flex items-center gap-3">
-            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">
-              ${u.nombre.charAt(0)}${u.apellido.charAt(0)}
-            </div>
-            <div>
-              <div style="font-weight:600">${u.nombre} ${u.apellido}</div>
-              <div style="font-size:11px;color:var(--text-muted)">ID: ${u.id}</div>
-            </div>
-          </div>
-        </td>
-        <td>${u.email}</td>
-        <td>
-          <span class="badge ${u.rol === 'superadmin' ? 'badge-error' : u.rol === 'admin' ? 'badge-warning' : u.rol === 'contador' ? 'badge-info' : 'badge-purple'}">
-            ${u.rol}
-          </span>
-        </td>
-        <td>${u.ultimo_login ? fmt.date(u.ultimo_login) : '<span class="text-muted">Nunca</span>'}</td>
-        <td>${statusBadge(u.activo ? 'activo' : 'inactivo')}</td>
-        <td>
-          <div class="flex gap-2">
-            <button class="btn btn-sm btn-secondary" onclick="editUser(${u.id})">✏️</button>
-            <button class="btn btn-sm btn-danger" onclick="toggleUser(${u.id}, ${u.activo})">
-              ${u.activo ? '🚫' : '✅'}
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-    document.getElementById('users-table').style.display = 'block';
-  }
-
-  function openCreate() {
-    document.getElementById('u-id').value = '';
-    document.getElementById('u-nombre').value = '';
-    document.getElementById('u-apellido').value = '';
-    document.getElementById('u-email').value = '';
-    document.getElementById('u-password').value = '';
-    document.getElementById('u-rol_id').value = '';
-    document.getElementById('u-activo-group').style.display = 'none';
-    document.getElementById('user-modal-title').textContent = 'Nuevo Usuario';
-    modal.open('user-modal');
-  }
-
-  function editUser(id) {
-    const u = users.find(x => x.id === id);
-    if (!u) return;
-    document.getElementById('u-id').value = u.id;
-    document.getElementById('u-nombre').value = u.nombre;
-    document.getElementById('u-apellido').value = u.apellido;
-    document.getElementById('u-email').value = u.email;
-    document.getElementById('u-password').value = '';
-    document.getElementById('u-rol_id').value = u.rol_id;
-    document.getElementById('u-activo').value = String(u.activo);
-    document.getElementById('u-activo-group').style.display = 'block';
-    document.getElementById('user-modal-title').textContent = 'Editar Usuario';
-    modal.open('user-modal');
-  }
-
-  async function saveUser() {
-    const id = document.getElementById('u-id').value;
-    const btn = document.getElementById('save-user-btn');
-    btn.disabled = true; btn.textContent = 'Guardando...';
-
-    const payload = {
-      nombre: document.getElementById('u-nombre').value,
-      apellido: document.getElementById('u-apellido').value,
-      email: document.getElementById('u-email').value,
-      password: document.getElementById('u-password').value,
-      rol_id: document.getElementById('u-rol_id').value
+  async function createUser() {
+    const body = {
+      nombre: document.getElementById('nombre').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      rol: document.getElementById('rol').value
     };
 
-    if (id) payload.activo = document.getElementById('u-activo').value === 'true';
+    const response = await fetch('/api/users', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'Error creando usuario.');
 
-    const data = id
-      ? await api.put(`/usuarios/${id}`, payload)
-      : await api.post('/usuarios', payload);
-
-    btn.disabled = false; btn.textContent = '💾 Guardar';
-
-    if (data?.success) {
-      toast.success(id ? 'Usuario actualizado' : 'Usuario creado');
-      modal.close('user-modal');
-      loadUsers();
-    } else {
-      toast.error(data?.message || 'Error al guardar');
-    }
+    ['nombre', 'email', 'password'].forEach((id) => { document.getElementById(id).value = ''; });
+    loadUsers();
   }
 
-  async function toggleUser(id, activo) {
-    const msg = activo ? '¿Desactivar este usuario?' : '¿Reactivar este usuario?';
-    if (!confirm(msg)) return;
-    const data = activo
-      ? await api.delete(`/usuarios/${id}`)
-      : await api.put(`/usuarios/${id}`, { activo: true });
-    if (data?.success) {
-      toast.success(activo ? 'Usuario desactivado' : 'Usuario reactivado');
-      loadUsers();
-    } else {
-      toast.error(data?.message || 'Error');
-    }
+  async function toggleUser(id, newStatus) {
+    const response = await fetch(`/api/users/${id}/status`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo: newStatus })
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo actualizar estado.');
+    loadUsers();
+  }
+
+  async function deleteUser(id) {
+    if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
+    const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo eliminar.');
+    loadUsers();
   }
 
   loadUsers();

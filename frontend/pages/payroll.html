@@ -1,54 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Nómina | PaySchool</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Nómina | PaySchool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
 </head>
-<body class="min-h-screen flex">
-    <aside class="w-72 bg-slate-900 text-white flex flex-col hidden md:flex shadow-2xl z-20">
-        <div class="p-8 text-3xl font-bold border-b border-slate-800 text-sky-400"><i class="fa-solid fa-graduation-cap mr-3"></i>PaySchool</div>
-        <nav class="flex-1 p-5 space-y-3 mt-4">
-            <a href="/dashboard.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-chart-pie w-6 mr-3"></i> Resumen</a>
-            <a href="/employees.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-users w-6 mr-3"></i> Personal</a>
-            <a href="/payroll.html" class="sidebar-item active-nav flex items-center p-4 rounded-xl font-semibold text-white"><i class="fa-solid fa-file-invoice-dollar w-6 mr-3"></i> Nómina</a>
-            <a href="/accounting.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-book w-6 mr-3"></i> Contabilidad</a>
-        </nav>
-    </aside>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">🎓 PaySchool ERP</div>
+    <nav class="nav">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/employees.html">Empleados</a>
+      <a class="active" href="/payroll.html">Nómina</a>
+      <a href="/accounting.html">Contabilidad</a>
+      <a href="/users.html">Usuarios</a>
+    </nav>
+  </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-white shadow-sm p-6 flex justify-between items-center z-10">
-            <h1 class="text-2xl font-bold text-slate-800">Liquidación de Nómina</h1>
-            <button id="btnGenerar" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition"><i class="fa-solid fa-calculator mr-2"></i> Generar Nómina</button>
-        </header>
+  <main class="main">
+    <header class="header">
+      <div>
+        <h1 class="title">Motor de Nómina</h1>
+        <p class="subtitle">Flujo normal de nómina + simulación previa por empleado.</p>
+      </div>
+    </header>
 
-        <div class="p-8 flex-1 overflow-y-auto">
-            <div class="glass-card overflow-hidden">
-                <table class="w-full text-left">
-                    <thead><tr><th class="p-4">Empleado</th><th class="p-4">Devengado</th><th class="p-4">Deducido</th><th class="p-4">Neto a Pagar</th></tr></thead>
-                    <tbody id="tablaNomina" class="divide-y divide-slate-100">
-                        <tr><td colspan="4" class="p-8 text-center text-slate-500">Presiona "Generar Nómina" para calcular el mes actual.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <section class="card" style="margin-bottom:16px;">
+      <h3>Procesar nómina</h3>
+      <div class="form-grid">
+        <input id="periodo" class="input" placeholder="Periodo (Ej. Mensual)" />
+        <input id="mes" class="input" placeholder="Mes" />
+        <input id="anio" type="number" class="input" placeholder="Año" />
+        <button class="btn" onclick="simulatePayroll()">Simular nómina</button>
+        <button class="btn" onclick="savePayroll()">Guardar nómina</button>
+      </div>
+    </section>
 
-    <script>
-        document.getElementById('btnGenerar').addEventListener('click', async () => {
-            const btn = document.getElementById('btnGenerar'); btn.innerText = "Calculando..."; btn.disabled = true;
-            try {
-                const res = await fetch('/api/payroll/calcular', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periodo: 'Mensual', mes: 3, anio: 2026 }) });
-                const data = await res.json();
-                if (data.success && data.data.detalles.length > 0) {
-                    document.getElementById('tablaNomina').innerHTML = data.data.detalles.map(n => `<tr><td class="p-4 font-bold">${n.nombre}</td><td class="p-4 text-emerald-600">$${n.totalDevengado.toLocaleString()}</td><td class="p-4 text-rose-500">$${n.totalDeducido.toLocaleString()}</td><td class="p-4 font-bold">$${n.netoPagar.toLocaleString()}</td></tr>`).join('');
-                } else {
-                    document.getElementById('tablaNomina').innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">No hay empleados para calcular.</td></tr>`;
-                }
-            } catch (e) { alert("Error de conexión"); } finally { btn.innerHTML = '<i class="fa-solid fa-calculator mr-2"></i> Generar Nómina'; btn.disabled = false; }
-        });
-    </script>
+    <section class="card table-wrap" style="margin-bottom:16px;">
+      <h3>Resultado de simulación</h3>
+      <table>
+        <thead><tr><th>Empleado</th><th>Cargo</th><th>Devengado</th><th>Deducciones</th><th>Neto</th></tr></thead>
+        <tbody id="simulation-table"><tr><td colspan="5">Sin simulación.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card table-wrap">
+      <h3>Historial de nómina</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Periodo</th><th>Fecha</th><th>Empleados</th><th>Neto total</th></tr></thead>
+        <tbody id="payroll-table"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script>
+  function payrollPayload(guardar) {
+    return {
+      periodo: document.getElementById('periodo').value.trim() || 'Mensual',
+      mes: document.getElementById('mes').value.trim() || 'Actual',
+      anio: Number(document.getElementById('anio').value) || new Date().getFullYear(),
+      guardar
+    };
+  }
+
+  function renderSimulation(result) {
+    const rows = result?.data?.detalles || [];
+    document.getElementById('simulation-table').innerHTML = rows.length
+      ? rows.map((item) => `
+          <tr>
+            <td>${item.nombre}</td>
+            <td>${item.cargo}</td>
+            <td>$${Math.round(item.totalDevengado).toLocaleString('es-CO')}</td>
+            <td>$${Math.round(item.totalDeducido).toLocaleString('es-CO')}</td>
+            <td><strong>$${Math.round(item.netoPagar).toLocaleString('es-CO')}</strong></td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="5">No hay empleados para simular.</td></tr>';
+  }
+
+  async function loadPayroll() {
+    const response = await fetch('/api/payroll/historial');
+    const result = await response.json();
+
+    document.getElementById('payroll-table').innerHTML = (result.data || []).length
+      ? result.data.map((payroll) => {
+          const neto = (payroll.detalles || []).reduce((acc, item) => acc + (item.netoPagar || 0), 0);
+          return `<tr><td>${payroll.id}</td><td>${payroll.periodo} - ${payroll.mes} ${payroll.anio}</td><td>${new Date(payroll.fecha_generacion).toLocaleString('es-CO')}</td><td>${(payroll.detalles || []).length}</td><td>$${Math.round(neto).toLocaleString('es-CO')}</td></tr>`;
+        }).join('')
+      : '<tr><td colspan="5">Sin nóminas generadas.</td></tr>';
+  }
+
+  async function simulatePayroll() {
+    const response = await fetch('/api/payroll/calcular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payrollPayload(false))
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No fue posible simular la nómina.');
+    renderSimulation(result);
+  }
+
+  async function savePayroll() {
+    const response = await fetch('/api/payroll/calcular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payrollPayload(true))
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No fue posible guardar la nómina.');
+    renderSimulation(result);
+    alert(result.message);
+    loadPayroll();
+  }
+
+  loadPayroll();
+</script>
 </body>
 </html>

@@ -1,88 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Personal | PaySchool</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Empleados | PaySchool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
 </head>
-<body class="min-h-screen flex">
-    <aside class="w-72 bg-slate-900 text-white flex flex-col hidden md:flex shadow-2xl z-20">
-        <div class="p-8 text-3xl font-bold border-b border-slate-800 text-sky-400"><i class="fa-solid fa-graduation-cap mr-3"></i>PaySchool</div>
-        <nav class="flex-1 p-5 space-y-3 mt-4">
-            <a href="/dashboard.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-chart-pie w-6 mr-3"></i> Resumen</a>
-            <a href="/employees.html" class="sidebar-item active-nav flex items-center p-4 rounded-xl font-semibold text-white"><i class="fa-solid fa-users w-6 mr-3"></i> Personal</a>
-            <a href="/payroll.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-file-invoice-dollar w-6 mr-3"></i> Nómina</a>
-            <a href="/accounting.html" class="sidebar-item flex items-center p-4 rounded-xl font-medium text-slate-300"><i class="fa-solid fa-book w-6 mr-3"></i> Contabilidad</a>
-        </nav>
-    </aside>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">🎓 PaySchool ERP</div>
+    <nav class="nav">
+      <a href="/dashboard.html">Dashboard</a>
+      <a class="active" href="/employees.html">Empleados</a>
+      <a href="/payroll.html">Nómina</a>
+      <a href="/accounting.html">Contabilidad</a>
+      <a href="/users.html">Usuarios</a>
+    </nav>
+  </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-white shadow-sm p-6 flex justify-between items-center z-10">
-            <h1 class="text-2xl font-bold text-slate-800">Gestión de Personal</h1>
-            <button onclick="abrirModal()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-5 rounded-lg shadow-md transition flex items-center"><i class="fa-solid fa-plus mr-2"></i> Nuevo Empleado</button>
-        </header>
+  <main class="main">
+    <header class="header">
+      <div>
+        <h1 class="title">Gestión de Empleados y Docentes</h1>
+        <p class="subtitle">Alta y baja operativa del personal de nómina.</p>
+      </div>
+    </header>
 
-        <div class="p-8 flex-1 overflow-y-auto">
-            <div class="glass-card overflow-hidden">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr><th class="p-4">Nombre</th><th class="p-4">Cédula</th><th class="p-4">Cargo</th><th class="p-4">Salario Base</th></tr>
-                    </thead>
-                    <tbody id="tablaEmpleados" class="divide-y divide-slate-100">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <section class="card" style="margin-bottom: 16px;">
+      <h3>Registrar empleado</h3>
+      <div class="form-grid">
+        <input id="nombre" class="input" placeholder="Nombre" />
+        <input id="apellido" class="input" placeholder="Apellido" />
+        <input id="cedula" class="input" placeholder="Cédula" />
+        <input id="cargo" class="input" placeholder="Cargo (Docente, etc.)" />
+        <input id="salario_base" type="number" class="input" placeholder="Salario base" />
+        <button class="btn" onclick="createEmployee()">Crear</button>
+      </div>
+    </section>
 
-    <div id="modalNuevoEmpleado" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center">
-        <div class="bg-white w-full max-w-md rounded-2xl p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Registrar Empleado</h2>
-                <button onclick="cerrarModal()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form id="formEmpleado">
-                <input type="text" id="empNombre" placeholder="Nombre Completo" required class="w-full p-3 mb-4 border rounded-lg">
-                <input type="number" id="empCedula" placeholder="Cédula" required class="w-full p-3 mb-4 border rounded-lg">
-                <select id="empCargo" class="w-full p-3 mb-4 border rounded-lg"><option>Docente</option><option>Administrativo</option></select>
-                <input type="number" id="empSalario" placeholder="Salario Base" required class="w-full p-3 border rounded-lg">
-                <button type="submit" class="w-full mt-6 bg-sky-500 text-white font-bold py-3 rounded-xl">Guardar</button>
-            </form>
-        </div>
-    </div>
+    <section class="card table-wrap">
+      <h3>Empleados registrados</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Salario</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="employees-table"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
 
-    <script>
-        function abrirModal() { document.getElementById('modalNuevoEmpleado').classList.add('modal-active'); document.getElementById('modalNuevoEmpleado').classList.remove('hidden'); }
-        function cerrarModal() { document.getElementById('modalNuevoEmpleado').classList.remove('modal-active'); document.getElementById('modalNuevoEmpleado').classList.add('hidden'); document.getElementById('formEmpleado').reset(); }
+<script>
+  async function loadEmployees() {
+    const response = await fetch('/api/employees');
+    const result = await response.json();
+    const rows = result.data || [];
 
-        async function cargarEmpleados() {
-            const tbody = document.getElementById('tablaEmpleados');
-            try {
-                const res = await fetch('/api/employees');
-                const result = await res.json();
-                if (result.success && result.data.length > 0) {
-                    tbody.innerHTML = result.data.map(e => `<tr><td class="p-4">${e.nombre}</td><td class="p-4">${e.cedula}</td><td class="p-4">${e.cargo}</td><td class="p-4">$${e.salario_base.toLocaleString()}</td></tr>`).join('');
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">No hay empleados registrados.</td></tr>`;
-                }
-            } catch (error) { tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-red-500">Error conectando al servidor.</td></tr>`; }
-        }
+    document.getElementById('employees-table').innerHTML = rows.length
+      ? rows.map(e => `
+          <tr>
+            <td>${e.id}</td>
+            <td>${e.nombre} ${e.apellido || ''}</td>
+            <td>${e.cedula}</td>
+            <td>${e.cargo}</td>
+            <td>$${Number(e.salario_base).toLocaleString('es-CO')}</td>
+            <td>${e.activo === false ? '<span class="pill alert">Inactivo</span>' : '<span class="pill ok">Activo</span>'}</td>
+            <td>
+              ${e.activo === false ? '' : `<button class="btn btn-danger" onclick="deleteEmployee(${e.id})">Dar de baja</button>`}
+            </td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="7">No hay empleados.</td></tr>';
+  }
 
-        document.getElementById('formEmpleado').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button'); btn.innerText = "Guardando..."; btn.disabled = true;
-            try {
-                await fetch('/api/employees', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre: document.getElementById('empNombre').value, cedula: document.getElementById('empCedula').value, cargo: document.getElementById('empCargo').value, salario_base: document.getElementById('empSalario').value })
-                });
-                cerrarModal(); cargarEmpleados();
-            } finally { btn.innerText = "Guardar"; btn.disabled = false; }
-        });
+  async function createEmployee() {
+    const body = {
+      nombre: document.getElementById('nombre').value.trim(),
+      apellido: document.getElementById('apellido').value.trim(),
+      cedula: document.getElementById('cedula').value.trim(),
+      cargo: document.getElementById('cargo').value.trim(),
+      salario_base: Number(document.getElementById('salario_base').value)
+    };
 
-        cargarEmpleados();
-    </script>
+    const response = await fetch('/api/employees', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo crear el empleado.');
+
+    ['nombre', 'apellido', 'cedula', 'cargo', 'salario_base'].forEach((id) => { document.getElementById(id).value = ''; });
+    loadEmployees();
+  }
+
+  async function deleteEmployee(id) {
+    if (!confirm('¿Dar de baja este empleado/docente?')) return;
+    const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!result.success) return alert(result.message || 'No se pudo dar de baja.');
+    loadEmployees();
+  }
+
+  loadEmployees();
+</script>
 </body>
 </html>
