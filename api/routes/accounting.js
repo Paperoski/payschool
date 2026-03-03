@@ -10,11 +10,13 @@ const asientosPath = path.join(__dirname, '../../data/asientos_contables.json');
 const pucPath = path.join(__dirname, '../../data/puc_base.json');
 
 router.get('/asientos', requireMinRole('contador'), (req, res) => {
+router.get('/asientos', (req, res) => {
   const asientos = readJson(asientosPath, []).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
   return res.json({ success: true, data: asientos });
 });
 
 router.get('/resumen', requireMinRole('contador'), (req, res) => {
+router.get('/resumen', (req, res) => {
   const asientos = readJson(asientosPath, []);
   const mensual = {};
 
