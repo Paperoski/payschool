@@ -1,62 +1,41 @@
-// ==============================================================
-// PAYSCHOOL - Rutas de Notificaciones
-// ==============================================================
-// GET /api/notificaciones              → Mis notificaciones
-// PUT /api/notificaciones/:id/leer     → Marcar una como leída
-// PUT /api/notificaciones/leer-todas/all → Marcar todas como leídas
-// ==============================================================
-
 const express = require('express');
-const router  = express.Router();
-const db      = require('../config/db');
-const { authMiddleware } = require('../middleware/auth');
+const path = require('path');
+const { readJson, writeJson, nextId } = require('../utils/jsonStore');
 
-// GET /api/notificaciones - Obtener las del usuario autenticado
-router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      'SELECT * FROM notificaciones WHERE usuario_id = ? ORDER BY created_at DESC LIMIT 50',
-      [req.user.id]
-    );
+const router = express.Router();
+const notifPath = path.join(__dirname, '../../data/notificaciones.json');
 
-    // Contar cuántas no han sido leídas
-    const [[{ total }]] = await db.query(
-      'SELECT COUNT(*) AS total FROM notificaciones WHERE usuario_id = ? AND leida = FALSE',
-      [req.user.id]
-    );
-
-    res.json({ success: true, data: rows, no_leidas: total });
-
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error al obtener notificaciones' });
-  }
+router.get('/', (req, res) => {
+  const data = readJson(notifPath, []).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  const no_leidas = data.filter((item) => !item.leida).length;
+  return res.json({ success: true, no_leidas, data });
 });
 
-// PUT /api/notificaciones/leer-todas/all
-// Ruta especial ANTES de /:id para no confundirse con el ID
-router.put('/leer-todas/all', authMiddleware, async (req, res) => {
-  try {
-    await db.query(
-      'UPDATE notificaciones SET leida = TRUE WHERE usuario_id = ?',
-      [req.user.id]
-    );
-    res.json({ success: true, message: 'Todas las notificaciones marcadas como leídas' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error' });
-  }
+router.post('/', (req, res) => {
+  const { titulo, mensaje, tipo = 'info' } = req.body;
+  if (!titulo || !mensaje) return res.status(400).json({ success: false, message: 'titulo y mensaje son obligatorios.' });
+
+  const data = readJson(notifPath, []);
+  const notification = {
+    id: nextId(data),
+    titulo,
+    mensaje,
+    tipo,
+    leida: false,
+    fecha: new Date().toISOString()
+  };
+  data.push(notification);
+  writeJson(notifPath, data);
+  return res.status(201).json({ success: true, data: notification });
 });
 
-// PUT /api/notificaciones/:id/leer - Marcar una notificación específica
-router.put('/:id/leer', authMiddleware, async (req, res) => {
-  try {
-    await db.query(
-      'UPDATE notificaciones SET leida = TRUE WHERE id = ? AND usuario_id = ?',
-      [req.params.id, req.user.id]
-    );
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error' });
-  }
+router.put('/:id/leer', (req, res) => {
+  const data = readJson(notifPath, []);
+  const idx = data.findIndex((item) => Number(item.id) === Number(req.params.id));
+  if (idx === -1) return res.status(404).json({ success: false, message: 'Notificación no encontrada.' });
+  data[idx].leida = true;
+  writeJson(notifPath, data);
+  return res.json({ success: true, message: 'Notificación marcada como leída.' });
 });
 
 module.exports = router;
