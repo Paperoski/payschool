@@ -1,5 +1,5 @@
 // ==============================================================
-// PAYSCHOOL - Middleware de Autenticación JWT
+// COLEGIO BOSTON - Middleware de Autenticación JWT
 // ==============================================================
 // Este middleware protege las rutas privadas de la API.
 // Verifica que el usuario tenga un token válido y activo,

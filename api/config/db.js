@@ -1,5 +1,5 @@
 // ==============================================================
-// PAYSCHOOL - Base de Datos Local (archivos JSON)
+// COLEGIO BOSTON - Base de Datos Local (archivos JSON)
 // ==============================================================
 // Para probar localmente SIN necesitar MySQL ni internet.
 // Los datos se guardan en /data/*.json en tu computador.
@@ -78,11 +78,11 @@ function initData() {
     const hash   = bcrypt.hashSync('password', 10);
     writeTable('usuarios', [{
       id:1, nombre:'Super', apellido:'Admin',
-      email:'admin@payschool.com', password: hash,
+      email:'admin@colegioboston.edu.co', password: hash,
       rol_id:1, activo:true,
       ultimo_login: null, created_at: now(), updated_at: now()
     }]);
-    console.log('✅ [DB-LOCAL] Usuario admin creado → admin@payschool.com / password');
+    console.log('✅ [DB-LOCAL] Usuario admin creado → admin@colegioboston.edu.co / password');
   }
 
   // Departamentos
@@ -113,10 +113,10 @@ function initData() {
   // Empleados de ejemplo para pruebas
   if (!readTable('empleados').length) {
     writeTable('empleados', [
-      { id:1, codigo:'EMP001', nombre:'María',  apellido:'González', email:'maria@payschool.com',  departamento_id:2, cargo:'Docente de Matemáticas', tipo_contrato:'tiempo_completo', fecha_ingreso:'2020-01-15', salario_base:2500, activo:true, created_at:now() },
-      { id:2, codigo:'EMP002', nombre:'Carlos', apellido:'Ramírez',  email:'carlos@payschool.com', departamento_id:2, cargo:'Docente de Ciencias',    tipo_contrato:'tiempo_completo', fecha_ingreso:'2019-03-01', salario_base:2400, activo:true, created_at:now() },
-      { id:3, codigo:'EMP003', nombre:'Laura',  apellido:'Martínez', email:'laura@payschool.com',  departamento_id:3, cargo:'Secretaria Académica',   tipo_contrato:'tiempo_completo', fecha_ingreso:'2021-06-01', salario_base:1800, activo:true, created_at:now() },
-      { id:4, codigo:'EMP004', nombre:'Pedro',  apellido:'López',    email:'pedro@payschool.com',  departamento_id:4, cargo:'Contador General',       tipo_contrato:'tiempo_completo', fecha_ingreso:'2018-09-15', salario_base:3000, activo:true, created_at:now() }
+      { id:1, codigo:'EMP001', nombre:'María',  apellido:'González', email:'maria@colegioboston.edu.co',  departamento_id:2, cargo:'Docente de Matemáticas', tipo_contrato:'tiempo_completo', fecha_ingreso:'2020-01-15', salario_base:2500, activo:true, created_at:now() },
+      { id:2, codigo:'EMP002', nombre:'Carlos', apellido:'Ramírez',  email:'carlos@colegioboston.edu.co', departamento_id:2, cargo:'Docente de Ciencias',    tipo_contrato:'tiempo_completo', fecha_ingreso:'2019-03-01', salario_base:2400, activo:true, created_at:now() },
+      { id:3, codigo:'EMP003', nombre:'Laura',  apellido:'Martínez', email:'laura@colegioboston.edu.co',  departamento_id:3, cargo:'Secretaria Académica',   tipo_contrato:'tiempo_completo', fecha_ingreso:'2021-06-01', salario_base:1800, activo:true, created_at:now() },
+      { id:4, codigo:'EMP004', nombre:'Pedro',  apellido:'López',    email:'pedro@colegioboston.edu.co',  departamento_id:4, cargo:'Contador General',       tipo_contrato:'tiempo_completo', fecha_ingreso:'2018-09-15', salario_base:3000, activo:true, created_at:now() }
     ]);
     console.log('✅ [DB-LOCAL] Empleados de ejemplo creados');
   }

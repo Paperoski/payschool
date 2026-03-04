@@ -15,7 +15,7 @@ const asegurarAdmin = async () => {
         const defaultUser = [{
             id: 1,
             nombre: "Rectoría / Administración",
-            email: "admin@payschool.com",
+            email: "admin@colegioboston.edu.co",
             password: hashedPassword,
             rol: "admin",
             fecha_creacion: new Date().toISOString()

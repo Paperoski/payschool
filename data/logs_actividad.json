@@ -4,7 +4,7 @@
     "usuario_id": 1,
     "accion": "LOGIN",
     "modulo": "auth",
-    "descripcion": "Login exitoso: admin@payschool.com",
+    "descripcion": "Login exitoso: admin@colegioboston.edu.co",
     "ip": "::1",
     "created_at": "2026-02-27T13:44:43.380Z"
   },
@@ -13,7 +13,7 @@
     "usuario_id": 1,
     "accion": "LOGIN",
     "modulo": "auth",
-    "descripcion": "Login exitoso: admin@payschool.com",
+    "descripcion": "Login exitoso: admin@colegioboston.edu.co",
     "ip": "::1",
     "created_at": "2026-02-27T13:46:16.019Z"
   },
@@ -22,7 +22,7 @@
     "usuario_id": 1,
     "accion": "LOGIN",
     "modulo": "auth",
-    "descripcion": "Login exitoso: admin@payschool.com",
+    "descripcion": "Login exitoso: admin@colegioboston.edu.co",
     "ip": "::1",
     "created_at": "2026-03-02T03:49:53.023Z"
   },
@@ -31,7 +31,7 @@
     "usuario_id": 1,
     "accion": "LOGIN",
     "modulo": "auth",
-    "descripcion": "Login exitoso: admin@payschool.com",
+    "descripcion": "Login exitoso: admin@colegioboston.edu.co",
     "ip": "::1",
     "created_at": "2026-03-02T03:49:56.703Z"
   },
@@ -40,7 +40,7 @@
     "usuario_id": 1,
     "accion": "LOGIN",
     "modulo": "auth",
-    "descripcion": "Login exitoso: admin@payschool.com",
+    "descripcion": "Login exitoso: admin@colegioboston.edu.co",
     "ip": "::1",
     "created_at": "2026-03-02T03:49:57.989Z"
   }
