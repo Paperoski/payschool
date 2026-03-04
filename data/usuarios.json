@@ -3,7 +3,7 @@
     "id": 1,
     "nombre": "Super",
     "apellido": "Admin",
-    "email": "admin@payschool.com",
+    "email": "admin@colegioboston.edu.co",
     "password": "$2b$10$6YvTNu6Vt81rHFqWickjLeveDrYspSXk8lPiQ4F1od..j3vHeGLQm",
     "rol_id": 1,
     "activo": true,
