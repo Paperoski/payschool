@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/colegio-boston-logo.svg">
     <title>Colegio Boston | Portal Institucional</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,7 +24,8 @@
             max-width: 1180px;
             margin: auto;
             background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-radius: 28px;
             box-shadow: 0 25px 60px rgba(2, 8, 23, 0.45);
             overflow: hidden;
@@ -46,6 +48,14 @@
             background: linear-gradient(120deg, rgba(8, 23, 59, 0.95), rgba(15, 52, 120, 0.67));
         }
         .brand-content { position: relative; z-index: 1; }
+        .brand-crest {
+            width: 88px;
+            height: 88px;
+            object-fit: contain;
+            border-radius: 16px;
+            margin-bottom: 14px;
+            filter: drop-shadow(0 14px 28px rgba(8, 47, 118, 0.55)) blur(0.8px);
+        }
         .logo-pill {
             width: fit-content;
             margin-bottom: 18px;
@@ -66,7 +76,9 @@
         .login-section {
             flex: 1;
             padding: 60px 50px;
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             color: #1e293b;
             display: flex;
             flex-direction: column;
@@ -83,7 +95,9 @@
             border-radius: 12px;
             font-size: .98rem;
             transition: all .3s;
-            background: #f8fbff;
+            background: rgba(248, 251, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .input-group input:focus { border-color: #3b82f6; outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(59,130,246,.15); }
 
@@ -95,6 +109,8 @@
             cursor: pointer; transition: all .3s ease;
             margin-top: 10px;
             box-shadow: 0 10px 20px rgba(29, 78, 216, .34);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         button:hover { transform: translateY(-2px); box-shadow: 0 14px 24px rgba(29, 78, 216, .42); }
         button:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -105,6 +121,8 @@
             text-align: center; font-size: .92rem;
             margin-top: 20px; display: none;
             border: 1px solid #fecaca; font-weight: 600;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         @media (max-width: 850px) {
@@ -121,6 +139,7 @@
     <div class="container">
         <div class="brand-section">
             <div class="brand-content">
+                <img class="brand-crest" src="/assets/colegio-boston-logo.svg" alt="Escudo Colegio Boston">
                 <div class="logo-pill">CB · Colegio Boston</div>
                 <h1>Campus de Gestión Empresarial</h1>
                 <p>Administra la operación académica y financiera con una experiencia moderna, segura y preparada para equipos directivos.</p>
