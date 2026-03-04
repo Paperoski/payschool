@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Colegio Boston Logo">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2d6b"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2f60cc"/>
+      <stop offset="100%" stop-color="#7ea6ee"/>
+    </linearGradient>
+  </defs>
+  <path d="M28 18h200v174L128 246 28 192z" fill="url(#shield)"/>
+  <path d="M46 36h164v145L128 224 46 181z" fill="url(#inner)" opacity="0.95"/>
+  <text x="128" y="35" text-anchor="middle" font-size="27" font-family="Poppins, Arial, sans-serif" font-weight="800" fill="#ffffff">COLEGIO BOSTON</text>
+  <g fill="none" stroke="#ffffff" stroke-width="8" opacity="0.97">
+    <path d="M86 104c0-18 15-33 33-33h25v18h-25c-8 0-15 7-15 15v48c0 8 7 15 15 15h25v18h-25c-18 0-33-15-33-33z"/>
+    <path d="M145 71h34c18 0 31 13 31 28 0 10-4 17-12 22 10 5 15 13 15 24 0 19-14 32-35 32h-33zm18 18v23h16c8 0 13-5 13-11 0-7-5-12-13-12zm0 40v24h17c9 0 15-5 15-12s-6-12-15-12z"/>
+  </g>
+  <text x="128" y="214" text-anchor="middle" font-size="20" font-family="Poppins, Arial, sans-serif" font-weight="700" fill="#ffffff">CONCIENCIA Y BONDAD</text>
+</svg>

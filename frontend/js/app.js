@@ -1,5 +1,5 @@
 // ==============================================================
-// PAYSCHOOL - Utilidades Globales del Frontend
+// COLEGIO BOSTON - Utilidades Globales del Frontend
 // ==============================================================
 // Este archivo se incluye en TODAS las páginas del sistema.
 // Contiene:

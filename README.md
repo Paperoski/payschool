@@ -1,4 +1,4 @@
-# 🎓 PaySchool
+# 🎓 Colegio Boston
 ### Sistema de Nómina Escolar — Glassmorphism Corporativo
 
 ---
@@ -6,7 +6,7 @@
 ## 📁 Estructura del Proyecto
 
 ```
-payschool/
+colegio-boston/
 ├── vercel.json              ← Configuración de rutas para Vercel
 ├── package.json             ← Dependencias Node.js
 ├── .env.example             ← Variables de entorno (NUNCA subas .env)
@@ -51,10 +51,10 @@ payschool/
 # En tu máquina local
 git init
 git add .
-git commit -m "feat: PaySchool inicial"
+git commit -m "feat: Colegio Boston inicial"
 
 # Crear repositorio en github.com y conectarlo
-git remote add origin https://github.com/TU_USUARIO/payschool.git
+git remote add origin https://github.com/TU_USUARIO/colegio-boston.git
 git push -u origin main
 ```
 
@@ -62,7 +62,7 @@ git push -u origin main
 
 1. Ve a **https://vercel.com** e inicia sesión
 2. Clic en **"Add New Project"**
-3. Selecciona tu repositorio **payschool** de GitHub
+3. Selecciona tu repositorio **colegio-boston** de GitHub
 4. Vercel lo detectará como Node.js automáticamente
 5. **NO cambies nada** en la configuración — `vercel.json` ya está listo
 
@@ -78,7 +78,7 @@ En Vercel, ve a tu proyecto → **Settings → Environment Variables** y agrega:
 | `DB_PORT` | `3306` | Puerto MySQL |
 | `DB_USER` | `tu_usuario` | Usuario de la base de datos |
 | `DB_PASSWORD` | `tu_contraseña` | Contraseña (Vercel la encripta) |
-| `DB_NAME` | `payschool` | Nombre de la base de datos |
+| `DB_NAME` | `colegio_boston` | Nombre de la base de datos |
 | `JWT_SECRET` | `una-cadena-larga-y-aleatoria` | Firma de tokens JWT |
 | `JWT_EXPIRES_IN` | `24h` | Tiempo de expiración del token |
 | `NODE_ENV` | `production` | Entorno de producción |
@@ -116,8 +116,8 @@ git push origin main
 
 ```bash
 # Clonar el repo
-git clone https://github.com/TU_USUARIO/payschool.git
-cd payschool
+git clone https://github.com/TU_USUARIO/colegio-boston.git
+cd colegio-boston
 
 # Instalar dependencias
 npm install
@@ -145,7 +145,7 @@ npm run dev
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
-| `admin@payschool.com` | `password` | superadmin |
+| `admin@colegioboston.edu.co` | `password` | superadmin |
 
 > ⚠️ **Cambia la contraseña inmediatamente** después del primer acceso
 
@@ -218,4 +218,4 @@ npm run dev
 
 ---
 
-*PaySchool v1.0 — Sistema de Nómina Escolar*
+*Colegio Boston v1.0 — Sistema de Nómina Escolar*

@@ -30,6 +30,10 @@
     {
       "src": "/js/(.*)",
       "dest": "frontend/js/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "frontend/assets/$1"
     }
   ]
 }

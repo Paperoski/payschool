@@ -39,5 +39,5 @@ app.use((req, res) => res.status(404).json({ success: false, message: 'Ruta no e
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor PaySchool activo en http://localhost:${PORT}`);
+  console.log(`Servidor Colegio Boston activo en http://localhost:${PORT}`);
 });
