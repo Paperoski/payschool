@@ -1,5 +1,5 @@
 -- ============================================================
--- PAYSCHOOL - Base de Datos MySQL
+-- COLEGIO BOSTON - Base de Datos MySQL
 -- Sistema de Nómina Escolar
 --
 -- INSTRUCCIONES:
@@ -8,8 +8,8 @@
 --   O impórtalo desde phpMyAdmin / MySQL Workbench
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS payschool CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE payschool;
+CREATE DATABASE IF NOT EXISTS colegio_boston CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE colegio_boston;
 
 -- ============================================================
 -- TABLA: roles
@@ -55,7 +55,7 @@ CREATE TABLE usuarios (
 -- IMPORTANTE: Cambia la contraseña después del primer login
 -- Contraseña inicial: Admin123!
 INSERT INTO usuarios (nombre, apellido, email, password, rol_id) VALUES
-('Super', 'Admin', 'admin@payschool.com',
+('Super', 'Admin', 'admin@colegioboston.edu.co',
  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1);
 
 -- ============================================================
@@ -113,11 +113,11 @@ CREATE TABLE empleados (
 
 -- Empleados de muestra para pruebas
 INSERT INTO empleados (codigo, nombre, apellido, email, telefono, departamento_id, cargo, tipo_contrato, fecha_ingreso, salario_base) VALUES
-('EMP001','María',  'González', 'maria.gonzalez@payschool.com',  '555-0101', 2, 'Docente de Matemáticas', 'tiempo_completo', '2020-01-15', 2500.00),
-('EMP002','Carlos', 'Ramírez',  'carlos.ramirez@payschool.com',  '555-0102', 2, 'Docente de Ciencias',    'tiempo_completo', '2019-03-01', 2400.00),
-('EMP003','Laura',  'Martínez', 'laura.martinez@payschool.com',  '555-0103', 3, 'Secretaria Académica',   'tiempo_completo', '2021-06-01', 1800.00),
-('EMP004','Pedro',  'López',    'pedro.lopez@payschool.com',     '555-0104', 4, 'Contador General',       'tiempo_completo', '2018-09-15', 3000.00),
-('EMP005','Ana',    'Torres',   'ana.torres@payschool.com',      '555-0105', 2, 'Docente de Historia',    'medio_tiempo',    '2022-02-01', 1500.00);
+('EMP001','María',  'González', 'maria.gonzalez@colegioboston.edu.co',  '555-0101', 2, 'Docente de Matemáticas', 'tiempo_completo', '2020-01-15', 2500.00),
+('EMP002','Carlos', 'Ramírez',  'carlos.ramirez@colegioboston.edu.co',  '555-0102', 2, 'Docente de Ciencias',    'tiempo_completo', '2019-03-01', 2400.00),
+('EMP003','Laura',  'Martínez', 'laura.martinez@colegioboston.edu.co',  '555-0103', 3, 'Secretaria Académica',   'tiempo_completo', '2021-06-01', 1800.00),
+('EMP004','Pedro',  'López',    'pedro.lopez@colegioboston.edu.co',     '555-0104', 4, 'Contador General',       'tiempo_completo', '2018-09-15', 3000.00),
+('EMP005','Ana',    'Torres',   'ana.torres@colegioboston.edu.co',      '555-0105', 2, 'Docente de Historia',    'medio_tiempo',    '2022-02-01', 1500.00);
 
 -- ============================================================
 -- TABLA: conceptos_nomina
@@ -336,4 +336,4 @@ SELECT
      WHERE MONTH(fecha_pago)=MONTH(CURDATE())
        AND YEAR(fecha_pago)=YEAR(CURDATE()))                     AS nomina_mes_actual;
 
-SELECT '✅ Base de datos PaySchool creada exitosamente' AS resultado;
+SELECT '✅ Base de datos Colegio Boston creada exitosamente' AS resultado;

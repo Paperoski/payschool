@@ -1,7 +1,7 @@
 {
-  "name": "payschool",
+  "name": "colegio-boston",
   "version": "1.0.0",
-  "description": "PaySchool - Sistema de Nómina Escolar",
+  "description": "Colegio Boston - Sistema de Nómina Escolar",
   "main": "api/index.js",
   "scripts": {
     "dev": "nodemon api/index.js",
