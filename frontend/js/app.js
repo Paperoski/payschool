@@ -14,10 +14,10 @@
 // --------------------------------------------------------------
 // CONFIGURACIÓN
 // Cambia API_URL según tu entorno:
-//   LOCAL:      http://localhost:3000/api
+//   LOCAL/IP:   http://20.118.218.154:3000/api
 //   VERCEL:     /api  (relativo, funciona automáticamente)
 // --------------------------------------------------------------
-const API_URL = '/api'; // En Vercel funciona con ruta relativa
+const API_URL = 'http://20.118.218.154:3000/api';
 
 // ==============================================================
 // API CLIENT
