@@ -38,6 +38,6 @@ app.get('/', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
 app.use((req, res) => res.status(404).json({ success: false, message: 'Ruta no encontrada.' }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor Colegio Boston activo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor Payschool activo en http://0.0.0.0:${PORT}`);
 });

@@ -1,12 +1,13 @@
 const express = require('express');
 const path = require('path');
-const { readJson, writeJson, nextId } = require('../utils/jsonStore');
+const { readJson, writeJson, nextId, migrateIfNeeded } = require('../utils/jsonStore');
+const { DATA_FILES } = require('../utils/dataFiles');
 const { getRequestUser } = require('../utils/accessControl');
 
 const router = express.Router();
 
-const empleadosPath = path.join(__dirname, '../../data/empleados.json');
-const nominasPath = path.join(__dirname, '../../data/nominas.json');
+migrateIfNeeded(DATA_FILES.employees, [path.join(__dirname, '../../data/empleados.json')], []);
+migrateIfNeeded(DATA_FILES.payroll, [path.join(__dirname, '../../data/nominas.json')], []);
 
 const UVT_2026 = 52374;
 const SMLV_2026 = 1462000;
@@ -68,13 +69,13 @@ function filterPayrollForUser(nominas, user) {
 
 router.get('/historial', (req, res) => {
   const user = getRequestUser(req);
-  const nominas = readJson(nominasPath, []).sort((a, b) => new Date(b.fecha_generacion) - new Date(a.fecha_generacion));
+  const nominas = readJson(DATA_FILES.payroll, []).sort((a, b) => new Date(b.fecha_generacion) - new Date(a.fecha_generacion));
   return res.json({ success: true, data: filterPayrollForUser(nominas, user) });
 });
 
 router.get('/resumen', (req, res) => {
   const user = getRequestUser(req);
-  const nominas = filterPayrollForUser(readJson(nominasPath, []), user);
+  const nominas = filterPayrollForUser(readJson(DATA_FILES.payroll, []), user);
   const ultima = nominas[nominas.length - 1];
   const neto = round2((ultima?.detalles || []).reduce((acc, item) => acc + (Number(item.netoPagar) || 0), 0));
   return res.json({ success: true, data: { nominas_generadas: nominas.length, empleados_liquidados: ultima?.detalles?.length || 0, neto_ultima_nomina: neto, ultima_fecha_generacion: ultima?.fecha_generacion || null } });
@@ -88,8 +89,8 @@ router.post('/calcular', (req, res) => {
     return res.status(403).json({ success: false, message: 'Solo administración puede guardar nómina general.' });
   }
 
-  const empleados = readJson(empleadosPath, []).filter((e) => e.activo !== false);
-  const nominas = readJson(nominasPath, []);
+  const empleados = readJson(DATA_FILES.employees, []).filter((e) => e.activo !== false);
+  const nominas = readJson(DATA_FILES.payroll, []);
   const detalles = empleados.map(calculatePayrollDetail);
 
   const resultDetalles = user.level <= 1
@@ -107,7 +108,7 @@ router.post('/calcular', (req, res) => {
 
   if (guardar) {
     nominas.push(registroNomina);
-    writeJson(nominasPath, nominas);
+    writeJson(DATA_FILES.payroll, nominas);
   }
 
   return res.status(201).json({ success: true, message: guardar ? 'Nómina calculada y almacenada exitosamente.' : 'Nómina calculada en modo simulación.', data: registroNomina });

@@ -1,8 +1,8 @@
 const path = require('path');
-const { readJson, writeJson, nextId, ensureFile } = require('../utils/jsonStore');
+const { DATA_FILES } = require('../utils/dataFiles');
+const { readJson, writeJson, nextId, migrateIfNeeded } = require('../utils/jsonStore');
 
-const changesPath = path.join(__dirname, '../../data/cambios_app.json');
-ensureFile(changesPath, []);
+migrateIfNeeded(DATA_FILES.system, [path.join(__dirname, '../../data/cambios_app.json')], []);
 
 function sanitize(body = {}) {
   const clone = { ...body };
@@ -23,7 +23,7 @@ function createChangeLogger() {
     res.json = (payload) => {
       try {
         if (res.statusCode < 500) {
-          const changes = readJson(changesPath, []);
+          const changes = readJson(DATA_FILES.system, []);
           changes.push({
             id: nextId(changes),
             timestamp: new Date().toISOString(),
@@ -37,10 +37,10 @@ function createChangeLogger() {
             response_success: Boolean(payload?.success),
             response_message: payload?.message || null
           });
-          writeJson(changesPath, changes.slice(-2000));
+          writeJson(DATA_FILES.system, changes.slice(-2000));
         }
       } catch (error) {
-        // no-op para no romper la request principal
+        // evitar interrumpir la respuesta principal
       }
 
       return originalJson(payload);
@@ -51,12 +51,11 @@ function createChangeLogger() {
 }
 
 function getChanges({ limit = 100 } = {}) {
-  const changes = readJson(changesPath, []);
+  const changes = readJson(DATA_FILES.system, []);
   return changes.slice(-limit).reverse();
 }
 
 module.exports = {
   createChangeLogger,
-  getChanges,
-  changesPath
+  getChanges
 };

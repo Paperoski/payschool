@@ -1,10 +1,20 @@
 [
   {
+    "id": 3,
+    "nombre": "Administrador",
+    "email": "admin@payschool.com",
+    "password": "$2b$10$E69GBmHl3C6lxujBMIWIsuws2LyNHaUUi/MQI1v.LaExvreb4FzYW",
+    "rol": "admin",
+    "activo": true,
+    "fecha_creacion": "2026-03-05T00:03:34.124Z"
+  },
+  {
     "id": 1,
     "nombre": "Rectoría / Administración",
     "email": "admin@colegioboston.edu.co",
     "password": "$2b$10$hWyrvZO9RPUgMqIHJq8ADuiF1V2yX.psXr5pPqzrE3HKFBCK78X1i",
     "rol": "admin",
+    "activo": true,
     "fecha_creacion": "2026-03-02T03:54:06.783Z"
   },
   {

@@ -1,13 +1,12 @@
 const express = require('express');
-const path = require('path');
 const { readJson, writeJson, nextId } = require('../utils/jsonStore');
+const { DATA_FILES } = require('../utils/dataFiles');
 
 const router = express.Router();
-const chatPath = path.join(__dirname, '../../data/chat.json');
 
 router.get('/', (req, res) => {
   const { limit = 80 } = req.query;
-  const messages = readJson(chatPath, []);
+  const messages = readJson(DATA_FILES.chat, []);
   return res.json({ success: true, data: messages.slice(-Number(limit)) });
 });
 
@@ -17,17 +16,11 @@ router.post('/', (req, res) => {
     return res.status(400).json({ success: false, message: 'autor y mensaje son obligatorios.' });
   }
 
-  const messages = readJson(chatPath, []);
-  const newMessage = {
-    id: nextId(messages),
-    autor,
-    mensaje,
-    canal,
-    fecha: new Date().toISOString()
-  };
-
+  const messages = readJson(DATA_FILES.chat, []);
+  const newMessage = { id: nextId(messages), autor, mensaje, canal, fecha: new Date().toISOString() };
   messages.push(newMessage);
-  writeJson(chatPath, messages);
+  writeJson(DATA_FILES.chat, messages);
+
   return res.status(201).json({ success: true, data: newMessage });
 });
 
